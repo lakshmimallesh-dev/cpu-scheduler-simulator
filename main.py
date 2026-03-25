@@ -76,17 +76,46 @@ def run_simulation():
     selected_algo = algo_var.get()
     
     if selected_algo == "FCFS":
-        result = fcfs(processes)
+        scheduled = fcfs(processes)
     else:
         print(f"⚠️ {selected_algo} not implemented yet")
         return
     
+    result, avg_wt, avg_tat = calculate_metrics(scheduled)
+    
     print("\n===== FCFS Scheduling Result =====")
+    print("PID | AT | BT | ST | CT | WT | TAT")
     
     for p in result:
-        print(f"{p['pid']} | AT={p['at']} | BT={p['bt']} | ST={p['start']} | CT={p['completion']}")
+        print(f"{p['pid']} | {p['at']} | {p['bt']} | {p['start']} | {p['completion']} | {p['wt']} | {p['tat']}")
+    
+    print("\nAverage Waiting Time:", round(avg_wt, 2))
+    print("Average Turnaround Time:", round(avg_tat, 2))
 
 
+def calculate_metrics(processes):
+    total_wt = 0
+    total_tat = 0
+    
+    results = []
+    
+    for p in processes:
+        tat = p["completion"] - p["at"]
+        wt = tat - p["bt"]
+        
+        total_wt += wt
+        total_tat += tat
+        
+        results.append({
+            **p,
+            "tat": tat,
+            "wt": wt
+        })
+    
+    avg_wt = total_wt / len(processes)
+    avg_tat = total_tat / len(processes)
+    
+    return results, avg_wt, avg_tat
 
 
 # Main window
