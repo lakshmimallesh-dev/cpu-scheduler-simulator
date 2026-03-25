@@ -41,6 +41,54 @@ def clear_all():
     for item in tree.get_children():
         tree.delete(item)
 
+def fcfs(processes):
+    # Sort by Arrival Time
+    processes = sorted(processes, key=lambda x: x["at"])
+    
+    time = 0
+    result = []
+    
+    for p in processes:
+        # If CPU is idle
+        if time < p["at"]:
+            time = p["at"]
+        
+        start = time
+        completion = time + p["bt"]
+        
+        result.append({
+            "pid": p["pid"],
+            "at": p["at"],
+            "bt": p["bt"],
+            "start": start,
+            "completion": completion
+        })
+        
+        time = completion
+    
+    return result
+
+def run_simulation():
+    if not processes:
+        print("❌ No processes added!")
+        return
+    
+    selected_algo = algo_var.get()
+    
+    if selected_algo == "FCFS":
+        result = fcfs(processes)
+    else:
+        print(f"⚠️ {selected_algo} not implemented yet")
+        return
+    
+    print("\n===== FCFS Scheduling Result =====")
+    
+    for p in result:
+        print(f"{p['pid']} | AT={p['at']} | BT={p['bt']} | ST={p['start']} | CT={p['completion']}")
+
+
+
+
 # Main window
 root = tk.Tk()
 root.title("CPU Scheduler Simulator")
@@ -78,8 +126,25 @@ for col in columns:
 
 tree.pack(pady=20)
 
+# -------- Algorithm Selection --------
+frame_algo = tk.Frame(root)
+frame_algo.pack(pady=10)
+
+tk.Label(frame_algo, text="Select Algorithm:").pack(side=tk.LEFT, padx=5)
+
+algo_var = tk.StringVar()
+
+algo_dropdown = ttk.Combobox(
+    frame_algo,
+    textvariable=algo_var,
+    values=["FCFS", "SJF", "Round Robin", "Priority"],
+    state="readonly"
+)
+algo_dropdown.current(0)
+algo_dropdown.pack(side=tk.LEFT, padx=5)
+
 # -------- Run Button (Next use) --------
-btn_run = tk.Button(root, text="Run Simulation", bg="lightblue")
+btn_run = tk.Button(root, text="Run Simulation", bg="lightblue", command=run_simulation)
 btn_run.pack(pady=10)
 
 root.mainloop()
