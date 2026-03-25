@@ -2,17 +2,59 @@
 <html>
 <head>
     <title>CPU Scheduler Simulator</title>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial;
+            background-color: #111;
+            color: white;
+        }
+
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid white;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        select {
+            padding: 8px;
+        }
+    </style>
 </head>
+
 <body>
+
     <h1>🔥 CPU Scheduler Simulator 🔥</h1>
 
+    <!-- FORM -->
     <form method="POST">
-        <button type="submit">Run FCFS</button>
+        <label>Select Algorithm:</label>
+        <select name="algorithm">
+            <option value="fcfs">FCFS</option>
+            <option value="sjf">SJF</option>
+        </select>
+        <br><br>
+
+        <button type="submit">Run Simulation 🚀</button>
     </form>
 
+    <!-- RESULT -->
     {% if result %}
-    <h2>Results:</h2>
-    <table border="1">
+    <h2>📊 Results:</h2>
+
+    <table>
         <tr>
             <th>Process</th>
             <th>Start</th>
