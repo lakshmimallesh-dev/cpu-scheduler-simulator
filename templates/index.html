@@ -5,6 +5,33 @@
 </head>
 <body>
     <h1>🔥 CPU Scheduler Simulator 🔥</h1>
-    <p>Welcome bro 😎 Your simulator is starting...</p>
+
+    <form method="POST">
+        <button type="submit">Run FCFS</button>
+    </form>
+
+    {% if result %}
+    <h2>Results:</h2>
+    <table border="1">
+        <tr>
+            <th>Process</th>
+            <th>Start</th>
+            <th>Finish</th>
+            <th>Waiting</th>
+            <th>Turnaround</th>
+        </tr>
+
+        {% for p in result %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.start }}</td>
+            <td>{{ p.finish }}</td>
+            <td>{{ p.waiting }}</td>
+            <td>{{ p.turnaround }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
 </body>
 </html>
