@@ -5,100 +5,168 @@
 
     <style>
         body {
-            text-align: center;
-            font-family: Arial;
-            background-color: #111;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #020617);
             color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            margin-top: 30px;
+            padding: 20px;
+            background: #111827;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            margin-bottom: 20px;
         }
 
         table {
             margin: auto;
             border-collapse: collapse;
             margin-top: 20px;
+            width: 90%;
+        }
+
+        th {
+            background: #1f2937;
         }
 
         th, td {
-            padding: 10px;
-            border: 1px solid white;
+            padding: 12px;
+            border: 1px solid #374151;
+        }
+
+        input, select {
+            padding: 6px;
+            border-radius: 5px;
+            border: none;
         }
 
         button {
-            padding: 10px 20px;
-            margin-top: 10px;
+            padding: 12px 25px;
+            margin-top: 15px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: bold;
         }
 
-        select {
-            padding: 8px;
+        button:hover {
+            background: #2563eb;
+        }
+
+        .card {
+            background: #1f2937;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>🔥 CPU Scheduler Simulator 🔥</h1>
+<div class="container">
 
-    <!-- FORM -->
+    <h1 class="title">🔥 CPU Scheduler Simulator 🔥</h1>
+
     <form method="POST">
-    <label>Select Algorithm:</label>
-    <select name="algorithm" onchange="toggleInputs(this.value)">
-        <option value="fcfs">FCFS</option>
-        <option value="sjf">SJF</option>
-        <option value="rr">Round Robin</option>
-        <option value="priority">Priority</option>
-    </select>
 
-    <br><br>
+        <div class="card">
+            <h2>🧾 Enter Processes</h2>
 
-    <!-- Quantum -->
-    <div id="quantumBox" style="display:none;">
-        <label>Time Quantum:</label>
-        <input type="number" name="quantum" min="1">
+            <table>
+                <tr>
+                    <th>Process</th>
+                    <th>Arrival</th>
+                    <th>Burst</th>
+                    <th>Priority</th>
+                </tr>
+
+                {% for i in range(3) %}
+                <tr>
+                    <td>P{{ i+1 }}</td>
+                    <td><input type="number" name="arrival{{i}}" required></td>
+                    <td><input type="number" name="burst{{i}}" required></td>
+                    <td><input type="number" name="priority{{i}}" required></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ Algorithm Settings</h2>
+
+            <label>Select Algorithm:</label>
+            <select name="algorithm" onchange="toggleInputs(this.value)">
+                <option value="fcfs">FCFS</option>
+                <option value="sjf">SJF</option>
+                <option value="rr">Round Robin</option>
+                <option value="priority">Priority</option>
+            </select>
+
+            <br><br>
+
+            <div id="quantumBox" style="display:none;">
+                <label>Time Quantum:</label>
+                <input type="number" name="quantum" min="1">
+            </div>
+
+            <br>
+
+            <button type="submit">🚀 Run Simulation</button>
+        </div>
+
+    </form>
+
+    {% if result %}
+    <div class="card">
+        <h2>📊 Results</h2>
+
+        <table>
+            <tr>
+                <th>Process</th>
+                <th>Start</th>
+                <th>Finish</th>
+                <th>Waiting</th>
+                <th>Turnaround</th>
+            </tr>
+
+            {% for p in result %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.start }}</td>
+                <td>{{ p.finish }}</td>
+                <td>{{ p.waiting }}</td>
+                <td>{{ p.turnaround }}</td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
+    {% endif %}
 
-    <!-- Priority -->
-    <div id="priorityNote" style="display:none;">
-        <p>⚠️ Using predefined priorities in backend (P1=1, P2=2, P3=3)</p>
-    </div>
-
-    <br>
-    <button type="submit">Run Simulation 🚀</button>
-</form>
+</div>
 
 <script>
 function toggleInputs(value) {
     let q = document.getElementById("quantumBox");
-    let p = document.getElementById("priorityNote");
-
     q.style.display = (value === "rr") ? "block" : "none";
-    p.style.display = (value === "priority") ? "block" : "none";
 }
 </script>
-
-    <!-- RESULT -->
-    {% if result %}
-    <h2>📊 Results:</h2>
-
-    <table>
-        <tr>
-            <th>Process</th>
-            <th>Start</th>
-            <th>Finish</th>
-            <th>Waiting</th>
-            <th>Turnaround</th>
-        </tr>
-
-        {% for p in result %}
-        <tr>
-            <td>{{ p.id }}</td>
-            <td>{{ p.start }}</td>
-            <td>{{ p.finish }}</td>
-            <td>{{ p.waiting }}</td>
-            <td>{{ p.turnaround }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
 
 </body>
 </html>

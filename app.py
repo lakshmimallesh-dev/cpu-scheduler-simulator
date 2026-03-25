@@ -183,19 +183,26 @@ def home():
     if request.method == 'POST':
         algorithm = request.form.get('algorithm')
 
-        processes = [
-    {'id': 'P1', 'arrival': 0, 'burst': 5, 'priority': 2},
-    {'id': 'P2', 'arrival': 1, 'burst': 3, 'priority': 1},
-    {'id': 'P3', 'arrival': 2, 'burst': 2, 'priority': 3}
-]
+        processes = []
+
+        for i in range(3):
+            processes.append({
+                'id': f'P{i+1}',
+                'arrival': int(request.form.get(f'arrival{i}') or 0),
+                'burst': int(request.form.get(f'burst{i}') or 0),
+                'priority': int(request.form.get(f'priority{i}') or 0)
+            })
 
         if algorithm == 'fcfs':
             result = fcfs(processes)
+
         elif algorithm == 'sjf':
             result = sjf(processes)
+
         elif algorithm == 'rr':
-            quantum = int(request.form.get('quantum'))
+            quantum = int(request.form.get('quantum') or 1)
             result = round_robin(processes, quantum)
+
         elif algorithm == 'priority':
             result = priority_scheduling(processes)
 
