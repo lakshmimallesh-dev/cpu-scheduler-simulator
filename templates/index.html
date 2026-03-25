@@ -40,15 +40,40 @@
 
     <!-- FORM -->
     <form method="POST">
-        <label>Select Algorithm:</label>
-        <select name="algorithm">
-            <option value="fcfs">FCFS</option>
-            <option value="sjf">SJF</option>
-        </select>
-        <br><br>
+    <label>Select Algorithm:</label>
+    <select name="algorithm" onchange="toggleInputs(this.value)">
+        <option value="fcfs">FCFS</option>
+        <option value="sjf">SJF</option>
+        <option value="rr">Round Robin</option>
+        <option value="priority">Priority</option>
+    </select>
 
-        <button type="submit">Run Simulation 🚀</button>
-    </form>
+    <br><br>
+
+    <!-- Quantum -->
+    <div id="quantumBox" style="display:none;">
+        <label>Time Quantum:</label>
+        <input type="number" name="quantum" min="1">
+    </div>
+
+    <!-- Priority -->
+    <div id="priorityNote" style="display:none;">
+        <p>⚠️ Using predefined priorities in backend (P1=1, P2=2, P3=3)</p>
+    </div>
+
+    <br>
+    <button type="submit">Run Simulation 🚀</button>
+</form>
+
+<script>
+function toggleInputs(value) {
+    let q = document.getElementById("quantumBox");
+    let p = document.getElementById("priorityNote");
+
+    q.style.display = (value === "rr") ? "block" : "none";
+    p.style.display = (value === "priority") ? "block" : "none";
+}
+</script>
 
     <!-- RESULT -->
     {% if result %}
