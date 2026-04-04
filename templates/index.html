@@ -1,170 +1,217 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CPU Scheduler Simulator</title>
+<title>Simulator</title>
 
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0f172a, #020617);
-            color: white;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+body {
+    font-family:'Segoe UI';
+    background:linear-gradient(135deg,#020617,#0f172a);
+    color:white;
+    margin:0;
+}
 
-        .container {
-            width: 80%;
-            margin: auto;
-            margin-top: 30px;
-            padding: 20px;
-            background: #111827;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
+.container {
+    width:90%;
+    margin:auto;
+}
 
-        h1 {
-            margin-bottom: 20px;
-        }
+/* CARDS */
+.card {
+    background:rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+}
 
-        table {
-            margin: auto;
-            border-collapse: collapse;
-            margin-top: 20px;
-            width: 90%;
-        }
+/* TABLE */
+table {
+    width:100%;
+    border-collapse:collapse;
+}
 
-        th {
-            background: #1f2937;
-        }
+th,td {
+    padding:10px;
+    border:1px solid #374151;
+    text-align:center;
+}
 
-        th, td {
-            padding: 12px;
-            border: 1px solid #374151;
-        }
+/* BUTTON */
+button {
+    padding:10px 20px;
+    background:#3b82f6;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+}
 
-        input, select {
-            padding: 6px;
-            border-radius: 5px;
-            border: none;
-        }
+button:hover {
+    transform:scale(1.05);
+}
 
-        button {
-            padding: 12px 25px;
-            margin-top: 15px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+/* GANTT */
+.gantt-box {
+    margin:5px;
+    padding:10px;
+    border-radius:8px;
+    color:white;
+    animation: slideUp 0.5s forwards;
+    opacity:0;
+}
 
-        button:hover {
-            background: #2563eb;
-        }
+@keyframes slideUp {
+    to {
+        opacity:1;
+        transform:translateY(0);
+    }
+}
 
-        .card {
-            background: #1f2937;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
+/* METRICS */
+.metrics {
+    display:flex;
+    gap:20px;
+    justify-content:center;
+}
 
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-        }
-    </style>
+.metric {
+    padding:15px;
+    border-radius:10px;
+    background:#10b981;
+}
+
+.metric:nth-child(2){
+    background:#f59e0b;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <h1 class="title">🔥 CPU Scheduler Simulator 🔥</h1>
+<h1>⚙️ CPU Scheduler Dashboard</h1>
 
-    <form method="POST">
+<form method="POST">
 
-        <div class="card">
-            <h2>🧾 Enter Processes</h2>
+<div class="card">
 
-            <table>
-                <tr>
-                    <th>Process</th>
-                    <th>Arrival</th>
-                    <th>Burst</th>
-                    <th>Priority</th>
-                </tr>
+<h2>🧾 Processes</h2>
 
-                {% for i in range(3) %}
-                <tr>
-                    <td>P{{ i+1 }}</td>
-                    <td><input type="number" name="arrival{{i}}" required></td>
-                    <td><input type="number" name="burst{{i}}" required></td>
-                    <td><input type="number" name="priority{{i}}" required></td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
+<table id="table">
+<tr>
+<th>P</th><th>AT</th><th>BT</th><th>Priority</th>
+</tr>
 
-        <div class="card">
-            <h2>⚙️ Algorithm Settings</h2>
+<tr>
+<td>P1</td>
+<td><input type="number" name="arrival0" required></td>
+<td><input type="number" name="burst0" required></td>
+<td><input type="number" name="priority0" required></td>
+</tr>
 
-            <label>Select Algorithm:</label>
-            <select name="algorithm" onchange="toggleInputs(this.value)">
-                <option value="fcfs">FCFS</option>
-                <option value="sjf">SJF</option>
-                <option value="rr">Round Robin</option>
-                <option value="priority">Priority</option>
-            </select>
+</table>
 
-            <br><br>
+<br>
+<button type="button" onclick="addRow()">➕ Add Process</button>
 
-            <div id="quantumBox" style="display:none;">
-                <label>Time Quantum:</label>
-                <input type="number" name="quantum" min="1">
-            </div>
+</div>
 
-            <br>
+<div class="card">
 
-            <button type="submit">🚀 Run Simulation</button>
-        </div>
+<h2>⚙️ Settings</h2>
 
-    </form>
+<select name="algorithm" onchange="toggle(this.value)">
+<option value="fcfs">FCFS</option>
+<option value="sjf">SJF</option>
+<option value="srtf">SRTF</option>
+<option value="rr">Round Robin</option>
+<option value="priority">Priority</option>
+</select>
 
-    {% if result %}
-    <div class="card">
-        <h2>📊 Results</h2>
+<div id="q" style="display:none;">
+<input type="number" name="quantum" placeholder="Quantum">
+</div>
 
-        <table>
-            <tr>
-                <th>Process</th>
-                <th>Start</th>
-                <th>Finish</th>
-                <th>Waiting</th>
-                <th>Turnaround</th>
-            </tr>
+<br><br>
+<button>🚀 Run</button>
 
-            {% for p in result %}
-            <tr>
-                <td>{{ p.id }}</td>
-                <td>{{ p.start }}</td>
-                <td>{{ p.finish }}</td>
-                <td>{{ p.waiting }}</td>
-                <td>{{ p.turnaround }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    {% endif %}
+</div>
+
+</form>
+
+{% if result %}
+<div class="card">
+
+<h2>📊 Results</h2>
+
+<table>
+<tr><th>P</th><th>Start</th><th>Finish</th><th>WT</th><th>TAT</th></tr>
+
+{% for p in result %}
+<tr>
+<td>{{p.id}}</td>
+<td>{{p.start}}</td>
+<td>{{p.finish}}</td>
+<td>{{p.waiting}}</td>
+<td>{{p.turnaround}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<div class="metrics">
+<div class="metric">Avg WT<br>{{avg_wt}}</div>
+<div class="metric">Avg TAT<br>{{avg_tat}}</div>
+</div>
+
+</div>
+{% endif %}
+
+{% if gantt %}
+<div class="card">
+
+<h2>🎬 Gantt Timeline</h2>
+
+<div style="display:flex;justify-content:center;align-items:flex-end;">
+
+{% for g in gantt %}
+<div class="gantt-box"
+style="
+width: {{(g.end - g.start)*40}}px;
+background: {{ ['#3b82f6','#10b981','#f59e0b','#ef4444'][loop.index0 % 4] }};
+animation-delay: {{loop.index0*0.2}}s;
+">
+{{g.id}}<br>{{g.start}}-{{g.end}}
+</div>
+{% endfor %}
+
+</div>
+
+</div>
+{% endif %}
 
 </div>
 
 <script>
-function toggleInputs(value) {
-    let q = document.getElementById("quantumBox");
-    q.style.display = (value === "rr") ? "block" : "none";
+let count = 1;
+
+function addRow(){
+count++;
+let table=document.getElementById("table");
+
+let row=table.insertRow();
+
+row.innerHTML=`
+<td>P${count}</td>
+<td><input type="number" name="arrival${count-1}" required></td>
+<td><input type="number" name="burst${count-1}" required></td>
+<td><input type="number" name="priority${count-1}" required></td>
+`;
+}
+
+function toggle(val){
+document.getElementById("q").style.display=(val==="rr")?"block":"none";
 }
 </script>
 
