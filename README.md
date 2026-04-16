@@ -77,6 +77,8 @@ To provide a clear and interactive understanding of CPU scheduling algorithms fo
 
 **S. Lakshmi Mallesh**
 B.Tech CSE (Data Science)
+**Nikhil Prajapati**
+B.Tech CSE (Data Science)
 
 ---
 
