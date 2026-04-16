@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
+import requests
 
 app = Flask(__name__)
+
 
 # ---------------- FCFS ----------------
 def fcfs(processes):
@@ -21,8 +23,13 @@ def fcfs(processes):
         wt = start - p['arrival']
         tat = finish - p['arrival']
 
-        result.append({'id': p['id'], 'start': start, 'finish': finish,
-                       'waiting': wt, 'turnaround': tat})
+        result.append({
+            'id': p['id'],
+            'start': start,
+            'finish': finish,
+            'waiting': wt,
+            'turnaround': tat
+        })
 
         time = finish
 
@@ -58,22 +65,27 @@ def sjf(processes):
         wt = start - p['arrival']
         tat = finish - p['arrival']
 
-        completed.append({'id': p['id'], 'start': start, 'finish': finish,
-                          'waiting': wt, 'turnaround': tat})
+        completed.append({
+            'id': p['id'],
+            'start': start,
+            'finish': finish,
+            'waiting': wt,
+            'turnaround': tat
+        })
 
         time = finish
 
     return completed, gantt
 
 
-# ---------------- SRTF (PREEMPTIVE SJF) ----------------
+# ---------------- SRTF ----------------
 def srtf(processes):
     n = len(processes)
     remaining_bt = {p['id']: p['burst'] for p in processes}
     time = 0
     completed = 0
     gantt = []
-    last_process = None
+    last = None
     start_time = 0
 
     while completed < n:
@@ -86,12 +98,11 @@ def srtf(processes):
         available.sort(key=lambda x: remaining_bt[x['id']])
         current = available[0]
 
-        # start new gantt block
-        if last_process != current['id']:
-            if last_process is not None:
-                gantt.append({'id': last_process, 'start': start_time, 'end': time})
+        if last != current['id']:
+            if last is not None:
+                gantt.append({'id': last, 'start': start_time, 'end': time})
             start_time = time
-            last_process = current['id']
+            last = current['id']
 
         remaining_bt[current['id']] -= 1
         time += 1
@@ -99,25 +110,20 @@ def srtf(processes):
         if remaining_bt[current['id']] == 0:
             completed += 1
 
-    # last block
-    if last_process is not None:
-        gantt.append({'id': last_process, 'start': start_time, 'end': time})
+    if last is not None:
+        gantt.append({'id': last, 'start': start_time, 'end': time})
 
-    # calculate WT & TAT
     result = []
-    finish_time = {}
-
-    for g in gantt:
-        finish_time[g['id']] = g['end']
+    finish = {g['id']: g['end'] for g in gantt}
 
     for p in processes:
-        tat = finish_time[p['id']] - p['arrival']
+        tat = finish[p['id']] - p['arrival']
         wt = tat - p['burst']
 
         result.append({
             'id': p['id'],
             'start': '-',
-            'finish': finish_time[p['id']],
+            'finish': finish[p['id']],
             'waiting': wt,
             'turnaround': tat
         })
@@ -161,19 +167,16 @@ def round_robin(processes, quantum):
             queue.append(p)
 
     result = []
-    finish_time = {}
-
-    for g in gantt:
-        finish_time[g['id']] = g['end']
+    finish = {g['id']: g['end'] for g in gantt}
 
     for p in processes:
-        tat = finish_time[p['id']] - p['arrival']
+        tat = finish[p['id']] - p['arrival']
         wt = tat - p['burst']
 
         result.append({
             'id': p['id'],
             'start': '-',
-            'finish': finish_time[p['id']],
+            'finish': finish[p['id']],
             'waiting': wt,
             'turnaround': tat
         })
@@ -210,22 +213,29 @@ def priority_scheduling(processes):
         wt = start - p['arrival']
         tat = finish - p['arrival']
 
-        completed.append({'id': p['id'], 'start': start, 'finish': finish,
-                          'waiting': wt, 'turnaround': tat})
+        completed.append({
+            'id': p['id'],
+            'start': start,
+            'finish': finish,
+            'waiting': wt,
+            'turnaround': tat
+        })
 
         time = finish
 
     return completed, gantt
 
 
-# ---------------- MAIN ROUTE ----------------
+# ---------------- ROUTES ----------------
 @app.route('/')
-def intro():
-    return render_template('home.html')
+def landing():
+    return render_template("landing.html")
 
-
-@app.route('/simulator', methods=['GET', 'POST'])
+@app.route('/home')
 def home():
+    return render_template("home.html")
+@app.route('/simulator', methods=['GET', 'POST'])
+def simulator():
     result = None
     gantt = []
     avg_wt = avg_tat = 0
@@ -245,10 +255,7 @@ def home():
                 break
 
             if arrival == '' or burst == '' or priority == '':
-                return render_template('index.html', result=None, gantt=[])
-
-            if int(arrival) < 0 or int(burst) <= 0:
-                return render_template('index.html', result=None, gantt=[])
+                break
 
             processes.append({
                 'id': f'P{i+1}',
@@ -276,12 +283,9 @@ def home():
             result, gantt = priority_scheduling(processes)
 
         if result:
-            total_wt = sum(p['waiting'] for p in result)
-            total_tat = sum(p['turnaround'] for p in result)
             n = len(result)
-
-            avg_wt = round(total_wt / n, 2)
-            avg_tat = round(total_tat / n, 2)
+            avg_wt = round(sum(p['waiting'] for p in result) / n, 2)
+            avg_tat = round(sum(p['turnaround'] for p in result) / n, 2)
 
     return render_template('index.html',
                            result=result,
@@ -289,6 +293,144 @@ def home():
                            avg_wt=avg_wt,
                            avg_tat=avg_tat)
 
+
+# ---------------- CHATBOT (WITH FALLBACK) ----------------
+def local_answer(q):
+    q = q.lower()
+
+    def format_answer(title, points, example=None, conclusion=None):
+        text = f"{title}:\n\n"
+        for p in points:
+            text += f"• {p}\n"
+
+        if example:
+            text += f"\nExample:\n{example}\n"
+
+        if conclusion:
+            text += f"\nConclusion:\n{conclusion}\n"
+
+        return text
+
+    # 🔥 COMPARISON MODE
+    if "vs" in q or "compare" in q or "difference" in q:
+
+        if "fcfs" in q and "sjf" in q:
+            return """🔥 FCFS vs SJF
+
+FCFS:
+• Executes in arrival order  
+• Simple but higher waiting time  
+
+SJF:
+• Executes shortest job first  
+• Minimizes waiting time  
+
+Example:
+P1(5), P2(3)
+
+FCFS → P1 → P2  
+SJF → P2 → P1  
+
+🚀 Conclusion:
+SJF is more efficient than FCFS."""
+
+        if "sjf" in q and "srtf" in q:
+            return """🔥 SJF vs SRTF
+
+SJF:
+• Non-preemptive  
+
+SRTF:
+• Preemptive  
+
+🚀 Conclusion:
+SRTF is more optimal"""
+
+    # 🔥 GENERAL CONCEPTS
+    if "scheduling" in q or "cpu scheduling" in q:
+        return """🔥 CPU Scheduling:
+
+• Decides which process runs first
+• Optimizes CPU usage
+• Reduces waiting time
+
+Types:
+1. FCFS
+2. SJF
+3. SRTF
+4. Round Robin
+5. Priority"""
+
+    if "starvation" in q:
+        return """🔥 Starvation:
+
+• Process waits indefinitely
+• Happens in SJF / Priority
+
+🚀 Solution:
+Use Aging"""
+
+    if "aging" in q:
+        return """🔥 Aging:
+
+• Increases priority over time
+• Prevents starvation"""
+
+    # 🔥 SINGLE TOPICS
+    if "fcfs" in q:
+        return format_answer(
+            "🔥 FCFS",
+            ["Arrival order", "Non-preemptive"],
+            "P1 → P2",
+            "Simple but inefficient"
+        )
+
+    if "sjf" in q:
+        return format_answer(
+            "🔥 SJF",
+            ["Shortest job first", "Efficient"],
+            "P3 → P2 → P1"
+        )
+
+    if "srtf" in q:
+        return format_answer(
+            "🔥 SRTF",
+            ["Preemptive SJF", "Interrupts process"]
+        )
+
+    if "round robin" in q:
+        return format_answer(
+            "🔥 Round Robin",
+            ["Time quantum", "Fair scheduling"]
+        )
+
+    if "priority" in q:
+        return format_answer(
+            "🔥 Priority",
+            ["Higher priority executes first"]
+        )
+
+    return "Ask me anything about CPU Scheduling 😄"
+
+@app.route('/ask', methods=['POST'])
+def ask():
+    question = request.json.get("question", "").lower()
+    if question in ["bye", "exit", "goodbye"]:
+        return jsonify({
+        "answer": "Bye bro 👋 See you next time!",
+        "action": "close"
+    })
+    if question in ["hi", "hello", "hey"]:
+        return jsonify({"answer": "Hey bro 👋 Ask me anything about CPU scheduling!"})
+
+    # 🔥 FORCE LOCAL ANSWER FOR OS QUESTIONS
+    if any(word in question for word in [
+        "cpu", "process", "scheduling", "fcfs", "sjf",
+        "srtf", "round", "priority", "starvation", "aging"
+    ]):
+        return jsonify({"answer": local_answer(question)})
+
+    return jsonify({"answer": "Bro ask something related to CPU scheduling 😄"})
 
 if __name__ == '__main__':
     app.run(debug=True)

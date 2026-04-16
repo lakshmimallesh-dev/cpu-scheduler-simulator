@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,122 +8,660 @@
 body {
     margin:0;
     font-family:'Segoe UI';
-    background: linear-gradient(135deg,#020617,#0f172a);
+    background: linear-gradient(-45deg,#0f172a,#1e1b4b,#020617,#312e81);
+    background-size: 400% 400%;
+    animation: bg 12s ease infinite;
     color:white;
-    overflow-x:hidden;
+}
+
+@keyframes bg {
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+.container {
+    width:85%;
+    margin:auto;
 }
 
 /* HERO */
 .hero {
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
     text-align:center;
+    padding:60px 0;
 }
 
 .hero h1 {
-    font-size:50px;
-    animation: fadeIn 1s ease-in;
+    font-size:42px;
 }
 
 .hero p {
-    width:60%;
     opacity:0.8;
 }
 
 button {
-    padding:15px 30px;
-    margin-top:20px;
-    font-size:18px;
-    background:#3b82f6;
+    padding:12px 25px;
+    margin-top:15px;
     border:none;
-    border-radius:10px;
+    border-radius:8px;
+    background:linear-gradient(135deg,#7c3aed,#ec4899);
     color:white;
+    cursor:pointer;
+}
+
+/* GRID */
+.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+/* CARD */
+.card {
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(10px);
+    padding:20px;
+    border-radius:16px;
     cursor:pointer;
     transition:0.3s;
 }
 
-button:hover {
-    transform:scale(1.1);
-}
-
-/* CARDS */
-.section {
-    padding:50px;
-}
-
-.cards {
-    display:flex;
-    gap:20px;
-    justify-content:center;
-    flex-wrap:wrap;
-}
-
-.card {
-    background:rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    padding:20px;
-    border-radius:15px;
-    width:250px;
-    transition:0.3s;
-}
-
 .card:hover {
-    transform:translateY(-10px);
+    transform:translateY(-5px);
+    box-shadow:0 10px 30px rgba(124,58,237,0.3);
+}
+
+/* DETAILS */
+.details {
+    display:none;
+    margin-top:15px;
+    padding:15px;
+    background:#020617;
+    border-radius:10px;
+    font-size:14px;
+    line-height:1.5;
+}
+
+table {
+    width:100%;
+    margin-top:10px;
+    border-collapse:collapse;
+}
+
+td,th {
+    border:1px solid rgba(255,255,255,0.1);
+    padding:6px;
+    text-align:center;
+}
+.details {
+    display:none;
+    margin-top:15px;
+    padding:15px;
+    background:#020617;
+    border-radius:10px;
+    font-size:14px;
+    line-height:1.5;
+    animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
-    from {opacity:0; transform:translateY(20px);}
-    to {opacity:1;}
+    from {
+        opacity:0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity:1;
+        transform: translateY(0);
+    }
 }
+.hero {
+    text-align:center;
+    margin-top:80px;
+}
+.subtitle {
+    margin-top: 10px;
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.hero h1 {
+    font-size: 44px;
+    margin-top: 10px;
+    text-shadow: 0 0 20px rgba(124,58,237,0.6);
+}
+
+.actions button {
+    padding: 12px 28px;
+    margin: 10px;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.actions button:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(236,72,153,0.6);
+}
+.computer {
+    font-size:80px;
+    animation: spin 2s ease-out forwards;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(360deg) scale(0.5);
+        opacity:0;
+    }
+    100% {
+        transform: rotate(0deg) scale(1);
+        opacity:1;
+    }
+}
+
+.actions {
+    margin-top:20px;
+}
+
+.actions button {
+    margin:10px;
+}
+.grid {
+    margin-top: 30px;
+}
+.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+
+    align-items: start;   /* 🔥 THIS FIXES EVERYTHING */
+}
+.card {
+    height: fit-content;
+}
+
+.chat-box {
+    height: 300px;
+    overflow-y: auto;
+    background: #020617;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.msg {
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 10px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.user {
+    background: #7c3aed;
+    align-self: flex-end;
+}
+
+.bot {
+    background: #1e293b;
+}
+.chat-card {
+    display: flex;
+    flex-direction: column;
+    height: 350px;
+    grid-column: span 2; /* 🔥 makes it bigger */
+}
+
+.chat-box {
+    flex: 1;
+    overflow-y: auto;
+    background: #020617;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+}
+
+.chat-input button {
+    background: linear-gradient(135deg,#7c3aed,#ec4899);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 15px;
+}
+.fade-out {
+    opacity: 0;
+    transition: 0.5s;
+}
+/* FLOAT BUTTON */
+.chat-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg,#7c3aed,#ec4899);
+    color: white;
+    font-size: 22px;
+    padding: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
+
+/* POPUP */
+.chat-popup {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    height: 400px;
+    background: #020617;
+    border-radius: 12px;
+    display: none;
+    flex-direction: column;
+    padding: 10px;
+}
+
+/* HEADER */
+.chat-header {
+    display:flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.feature {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.feature h3 {
+    margin: 10px 0 5px;
+}
+
+.feature p {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.feature:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(124,58,237,0.4);
+}
+.card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.card h3 {
+    margin-bottom: 8px;
+}
+
+.short {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+/* hidden content */
+.extra {
+    margin-top: 10px;
+    font-size: 13px;
+    opacity: 0;
+    max-height: 0;
+    transition: 0.3s;
+}
+
+/* hover effect */
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(124,58,237,0.4);
+}
+
+.card:hover .extra {
+    opacity: 1;
+    max-height: 200px;
+}
+.suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.suggestions button {
+    background: #1e293b;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.suggestions button:hover {
+    background: #7c3aed;
+}
+.typing-text {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+
 </style>
 </head>
 
 <body>
 
-<div class="hero">
-    <h1>🔥 CPU Scheduler Simulator</h1>
-    <p>Interactive visualization of CPU scheduling algorithms with animations, metrics, and dynamic simulation.</p>
+<div class="container">
 
-    <a href="/simulator">
-        <button>🚀 Start Simulation</button>
-    </a>
+<!-- HERO -->
+<div class="hero">
+
+    <div class="computer">
+        💻
+    </div>
+
+    <h1>CPU Scheduling Simulator</h1>
+
+    <p class="subtitle">
+        Understand how your CPU makes decisions in real time ⚡
+    </p>
+
+    <div class="actions">
+        <button onclick="goExplain()">📘 Explanation</button>
+        <button onclick="goSim()">🚀 Start Simulation</button>
+    </div>
+
+</div>
+<div class="features">
+
+    <div class="feature">
+        ⚡
+        <h3>Fast Learning</h3>
+        <p>Understand algorithms quickly with examples</p>
+    </div>
+
+    <div class="feature">
+        🎯
+        <h3>Visual Simulation</h3>
+        <p>See how CPU executes processes step-by-step</p>
+    </div>
+
+    <div class="feature">
+        🤖
+        <h3>AI Doubt Solver</h3>
+        <p>Ask anything and get instant explanations</p>
+    </div>
+
+</div>
+<!-- ALGORITHMS -->
+<div id="algoSection" class="grid">
+
+<!-- FCFS -->
+<div class="card" onclick="toggle(this)">
+<h3>⚡ FCFS</h3>
+
+    <p class="short">
+        First Come First Serve
+    </p>
+
+    <div class="extra">
+        <p><b>Type:</b> Non-Preemptive</p>
+        <p><b>Difficulty:</b> Easy</p>
+        <p>Executes processes in arrival order</p>
+    </div>
+
+<div class="details">
+<p><b>Definition:</b> Executes processes in arrival order.</p>
+
+<table>
+<tr><th>P</th><th>AT</th><th>BT</th></tr>
+<tr><td>P1</td><td>0</td><td>5</td></tr>
+<tr><td>P2</td><td>1</td><td>3</td></tr>
+</table>
+
+<p><b>Execution:</b> P1 → P2</p>
+<p><b>WT:</b> P1=0, P2=4</p>
+<p><b>TAT:</b> P1=5, P2=7</p>
+</div>
 </div>
 
-<div class="section">
-    <h2 style="text-align:center;">🧠 Algorithms</h2>
+<!-- SJF -->
+<div class="card" onclick="toggle(this)">
+<h3>🎯 SJF</h3>
 
-    <div class="cards">
+<p class="short">
+    Shortest Job First
+</p>
 
-        <div class="card">
-            <h3>FCFS</h3>
-            <p>First come, first serve. Simple but can cause long waiting.</p>
-        </div>
+<div class="extra">
+    <p><b>Type:</b> Non-Preemptive</p>
+    <p><b>Difficulty:</b> Medium</p>
+    <p>Executes process with smallest burst time</p>
+</div>
 
-        <div class="card">
-            <h3>SJF</h3>
-            <p>Shortest job first. Minimizes waiting time.</p>
-        </div>
+<div class="details">
+<p><b>Definition:</b> Smallest burst time executes first.</p>
 
-        <div class="card">
-            <h3>SRTF</h3>
-            <p>Preemptive version of SJF. Always picks shortest remaining job.</p>
-        </div>
+<table>
+<tr><th>P</th><th>AT</th><th>BT</th></tr>
+<tr><td>P1</td><td>0</td><td>5</td></tr>
+<tr><td>P2</td><td>1</td><td>3</td></tr>
+<tr><td>P3</td><td>2</td><td>2</td></tr>
+</table>
 
-        <div class="card">
-            <h3>Round Robin</h3>
-            <p>Each process gets equal CPU time slice.</p>
-        </div>
+<p><b>Execution:</b> P1 → P3 → P2</p>
+</div>
+</div>
 
-        <div class="card">
-            <h3>Priority</h3>
-            <p>Higher priority process executes first.</p>
-        </div>
+<!-- SRTF -->
+<div class="card" onclick="toggle(this)">
+<h3>⚡ SRTF</h3>
 
+<p class="short">
+    Shortest Remaining Time First
+</p>
+
+<div class="extra">
+    <p><b>Type:</b> Preemptive</p>
+    <p><b>Difficulty:</b> Hard</p>
+    <p>Shortest remaining time executes first</p>
+</div>
+
+<div class="details">
+<p><b>Definition:</b> Preemptive SJF.</p>
+<p>P1 starts → P2 arrives → P2 runs → P1 resumes</p>
+</div>
+</div>
+
+<!-- RR -->
+<div class="card" onclick="toggle(this)">
+<h3>🔄 Round Robin</h3>
+
+<p class="short">
+    Time Sharing Algorithm
+</p>
+
+<div class="extra">
+    <p><b>Type:</b> Preemptive</p>
+    <p><b>Difficulty:</b> Medium</p>
+    <p>Each process gets fixed time quantum</p>
+</div>
+
+<div class="details">
+<p><b>Definition:</b> Each process gets time quantum.</p>
+<p><b>Example (q=2):</b></p>
+<p>P1 → P2 → P3 → P1 → ...</p>
+</div>
+</div>
+
+<!-- PRIORITY -->
+<div class="card" onclick="toggle(this)">
+<h3>🧠 Priority</h3>
+
+<p class="short">
+    Priority Based Scheduling
+</p>
+
+<div class="extra">
+    <p><b>Type:</b> Preemptive / Non-Preemptive</p>
+    <p><b>Difficulty:</b> Medium</p>
+    <p>Process with highest priority executes first</p>
+</div>
+
+<div class="details">
+<p><b>Definition:</b> Higher priority runs first.</p>
+<p>Lower number = higher priority</p>
+</div>
+</div>
+</div>
+
+<script>
+function toggle(card){
+    let d = card.querySelector(".details");
+
+    if(d.style.display === "block"){
+        d.style.display = "none";
+    } else {
+        d.style.display = "block";
+    }
+}
+</script>
+<script>
+function goExplain(){
+    document.getElementById("algoSection").scrollIntoView({
+        behavior:'smooth'
+    });
+}
+
+function goSim(){
+    window.location.href = "/simulator";
+}
+</script>
+<script>
+function ask(){
+    let q = document.getElementById("q").value;
+
+    fetch("/ask", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({question:q})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        document.getElementById("ans").innerText = data.answer;
+    });
+}
+function sendMsg(){
+    let input = document.getElementById("userInput");
+    let chat = document.getElementById("chatBox");
+
+    let userText = input.value;
+    
+    chat.innerHTML += `<div class="msg user">${userText}</div>`;
+    // 🤖 show thinking
+chat.innerHTML += `
+<div class="msg bot" id="thinking">
+    <div class="typing-text">Thinking...</div>
+    <div class="typing">
+        <span></span><span></span><span></span>
+    </div>
+</div>`;
+chat.scrollTop = chat.scrollHeight;
+
+    fetch("/ask", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({question:userText})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        document.getElementById("thinking")?.remove();
+        chat.innerHTML += `<div class="msg bot">${data.answer}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+
+        // 🔥 HANDLE CLOSE ACTION
+        if(data.action === "close"){
+            setTimeout(()=>{
+                chat.innerHTML = ""; // clear chat
+            }, 3000);
+        }
+    });
+
+    input.value="";
+}
+
+function toggleChat(){
+    let chat = document.getElementById("chatPopup");
+
+    if(chat.style.display === "flex"){
+        chat.style.display = "none";
+    } else {
+        chat.style.display = "flex";
+    }
+}
+function quickAsk(text){
+    document.getElementById("userInput").value = text;
+    sendMsg();
+}
+window.onload = function(){
+
+    document.getElementById("userInput")
+    .addEventListener("keypress", function(e){
+        if(e.key === "Enter"){
+            sendMsg();
+        }
+    });
+
+};
+</script>
+<!-- FLOATING BUTTON -->
+<div class="chat-btn" onclick="toggleChat()">💬</div>
+
+<!-- CHAT WINDOW -->
+<div class="chat-popup" id="chatPopup">
+    <div class="chat-header">
+        🤖 Doubt Solver
+        <span onclick="toggleChat()" style="cursor:pointer">✖</span>
+    </div>
+
+    <div class="chat-box" id="chatBox"></div>
+    <div class="suggestions">
+    <button onclick="quickAsk('Explain FCFS')">Explain FCFS</button>
+    <button onclick="quickAsk('SJF vs FCFS')">SJF vs FCFS</button>
+    <button onclick="quickAsk('What is starvation')">Starvation</button>
+</div>
+    <div class="chat-input">
+        <input id="userInput" placeholder="Ask anything..." />
+        <button onclick="sendMsg()">Send</button>
     </div>
 </div>
-
 </body>
 </html>

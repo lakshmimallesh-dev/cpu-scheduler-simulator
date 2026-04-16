@@ -1,14 +1,15 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
 <title>Simulator</title>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body {
     font-family:'Segoe UI';
-    background:linear-gradient(135deg,#020617,#0f172a);
+    background:#0b0f19;
     color:white;
-    margin:0;
 }
 
 .container {
@@ -16,12 +17,11 @@ body {
     margin:auto;
 }
 
-/* CARDS */
+/* CARD */
 .card {
-    background:rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
+    background:#111827;
     padding:20px;
-    border-radius:15px;
+    border-radius:12px;
     margin-top:20px;
 }
 
@@ -31,58 +31,65 @@ table {
     border-collapse:collapse;
 }
 
-th,td {
+th {
+    background:#1f2937;
+}
+
+td,th {
     padding:10px;
     border:1px solid #374151;
-    text-align:center;
+}
+
+/* INPUT */
+input {
+    width:80px;
+    padding:5px;
 }
 
 /* BUTTON */
 button {
     padding:10px 20px;
-    background:#3b82f6;
+    background:#7c3aed;
     border:none;
-    border-radius:8px;
+    border-radius:6px;
     color:white;
-    cursor:pointer;
 }
 
-button:hover {
-    transform:scale(1.05);
+/* CENTER SELECT */
+.select-box {
+    text-align:center;
+    margin-top:20px;
+}
+
+select {
+    padding:10px;
+    font-size:18px;
 }
 
 /* GANTT */
-.gantt-box {
-    margin:5px;
-    padding:10px;
-    border-radius:8px;
-    color:white;
-    animation: slideUp 0.5s forwards;
-    opacity:0;
-}
-
-@keyframes slideUp {
-    to {
-        opacity:1;
-        transform:translateY(0);
-    }
-}
-
-/* METRICS */
-.metrics {
+.timeline {
     display:flex;
-    gap:20px;
-    justify-content:center;
+    align-items:center;
 }
 
-.metric {
-    padding:15px;
-    border-radius:10px;
-    background:#10b981;
+.block {
+    text-align:center;
+    margin:2px;
+    padding:10px;
+    border-radius:6px;
+    color:white;
 }
 
-.metric:nth-child(2){
-    background:#f59e0b;
+.time {
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+}
+
+/* GRAPH */
+canvas {
+    max-width:400px;
+    margin:auto;
 }
 </style>
 </head>
@@ -91,36 +98,31 @@ button:hover {
 
 <div class="container">
 
-<h1>⚙️ CPU Scheduler Dashboard</h1>
+<h1>CPU Scheduler Dashboard</h1>
 
 <form method="POST">
 
 <div class="card">
 
-<h2>🧾 Processes</h2>
-
 <table id="table">
-<tr>
-<th>P</th><th>AT</th><th>BT</th><th>Priority</th>
-</tr>
+<tr><th>P</th><th>AT</th><th>BT</th><th>Priority</th></tr>
 
 <tr>
 <td>P1</td>
-<td><input type="number" name="arrival0" required></td>
-<td><input type="number" name="burst0" required></td>
-<td><input type="number" name="priority0" required></td>
+<td><input name="arrival0" value="{{request.form.get('arrival0','')}}"></td>
+<td><input name="burst0" value="{{request.form.get('burst0','')}}"></td>
+<td><input name="priority0" value="{{request.form.get('priority0','')}}"></td>
 </tr>
-
 </table>
 
 <br>
-<button type="button" onclick="addRow()">➕ Add Process</button>
+<button type="button" onclick="addRow()">Add Process</button>
 
 </div>
 
-<div class="card">
+<div class="card select-box">
 
-<h2>⚙️ Settings</h2>
+<h2>Select Algorithm</h2>
 
 <select name="algorithm" onchange="toggle(this.value)">
 <option value="fcfs">FCFS</option>
@@ -131,11 +133,11 @@ button:hover {
 </select>
 
 <div id="q" style="display:none;">
-<input type="number" name="quantum" placeholder="Quantum">
+<input name="quantum" placeholder="Quantum">
 </div>
 
 <br><br>
-<button>🚀 Run</button>
+<button>Run</button>
 
 </div>
 
@@ -144,11 +146,8 @@ button:hover {
 {% if result %}
 <div class="card">
 
-<h2>📊 Results</h2>
-
 <table>
 <tr><th>P</th><th>Start</th><th>Finish</th><th>WT</th><th>TAT</th></tr>
-
 {% for p in result %}
 <tr>
 <td>{{p.id}}</td>
@@ -160,10 +159,7 @@ button:hover {
 {% endfor %}
 </table>
 
-<div class="metrics">
-<div class="metric">Avg WT<br>{{avg_wt}}</div>
-<div class="metric">Avg TAT<br>{{avg_tat}}</div>
-</div>
+<p>Avg WT: {{avg_wt}} | Avg TAT: {{avg_tat}}</p>
 
 </div>
 {% endif %}
@@ -171,43 +167,79 @@ button:hover {
 {% if gantt %}
 <div class="card">
 
-<h2>🎬 Gantt Timeline</h2>
+<h2>Gantt Chart</h2>
 
-<div style="display:flex;justify-content:center;align-items:flex-end;">
-
+<div class="timeline">
 {% for g in gantt %}
-<div class="gantt-box"
-style="
-width: {{(g.end - g.start)*40}}px;
-background: {{ ['#3b82f6','#10b981','#f59e0b','#ef4444'][loop.index0 % 4] }};
-animation-delay: {{loop.index0*0.2}}s;
-">
-{{g.id}}<br>{{g.start}}-{{g.end}}
+<div class="block"
+style="width:{{(g.end-g.start)*40}}px;
+background:{{ ['#7c3aed','#ec4899','#22c55e','#f97316'][loop.index0%4] }}">
+{{g.id}}<br>
+<small>{{g.start}}-{{g.end}}</small>
 </div>
 {% endfor %}
+</div>
 
+<div class="time">
+    <span>{{gantt[0].start}}</span>
+    {% for g in gantt %}
+        <span>{{g.end}}</span>
+    {% endfor %}
 </div>
 
 </div>
 {% endif %}
 
+{% if result %}
+<div class="card">
+<canvas id="chart"></canvas>
 </div>
 
 <script>
-let count = 1;
+new Chart(document.getElementById("chart"),{
+type:'bar',
+data:{
+labels:[{% for p in result %}'{{p.id}}',{% endfor %}],
+datasets:[
+{
+label:'Waiting Time',
+data:[{% for p in result %}{{p.waiting}},{% endfor %}],
+backgroundColor:'#8b5cf6'
+},
+{
+label:'Turnaround Time',
+data:[{% for p in result %}{{p.turnaround}},{% endfor %}],
+backgroundColor:'#22c55e'
+}
+]
+},
+options:{
+responsive:true,
+plugins:{
+legend:{labels:{color:'white'}}
+},
+scales:{
+x:{ticks:{color:'white'}},
+y:{ticks:{color:'white'}}
+}
+}
+});
+</script>
+{% endif %}
+
+</div>
+
+<script>
+let count=1;
 
 function addRow(){
 count++;
-let table=document.getElementById("table");
-
-let row=table.insertRow();
-
-row.innerHTML=`
-<td>P${count}</td>
-<td><input type="number" name="arrival${count-1}" required></td>
-<td><input type="number" name="burst${count-1}" required></td>
-<td><input type="number" name="priority${count-1}" required></td>
-`;
+let t=document.getElementById("table");
+let r=t.insertRow();
+r.innerHTML=`<td>P${count}</td>
+<td><input name="arrival${count-1}"></td>
+<td><input name="burst${count-1}"></td>
+<td><input name="priority${count-1}"></td>`;
 }
 
 function toggle(val){
@@ -215,5 +247,363 @@ document.getElementById("q").style.display=(val==="rr")?"block":"none";
 }
 </script>
 
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>CPU Scheduler</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    margin:0;
+    font-family:'Segoe UI';
+    background: linear-gradient(-45deg, #0f172a, #1e1b4b, #020617, #312e81);
+    background-size: 400% 400%;
+    animation: gradientBG 12s ease infinite;
+    color:white;
+}
+
+@keyframes gradientBG {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
+}
+
+.container {
+    width:85%;
+    margin:auto;
+}
+
+/* HEADER */
+h1 {
+    text-align:center;
+    margin-top:30px;
+    font-size:34px;
+    letter-spacing:1px;
+}
+
+/* CARD */
+.card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding:20px;
+    border-radius:18px;
+    margin-top:25px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transition:0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 10px 40px rgba(124,58,237,0.3);
+}
+
+/* TABLE */
+table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+th {
+    background:#1e293b;
+}
+
+td,th {
+    padding:12px;
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+/* INPUT */
+input {
+    width:80px;
+    padding:6px;
+    border-radius:6px;
+    border:none;
+    outline:none;
+}
+
+/* BUTTON */
+button {
+    padding:10px 18px;
+    background: linear-gradient(135deg,#7c3aed,#ec4899);
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover {
+    opacity:0.85;
+}
+
+/* SELECT */
+.select-box {
+    text-align:center;
+}
+
+select {
+    padding:12px;
+    border-radius:10px;
+    font-size:16px;
+    background:#020617;
+    color:white;
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+/* GANTT */
+.timeline {
+    display:flex;
+    align-items:center;
+    margin-top:15px;
+}
+
+.block {
+    text-align:center;
+    padding:10px;
+    margin-right:4px;
+    border-radius:8px;
+    font-weight:500;
+}
+
+/* SCALE */
+.scale {
+    display:flex;
+    justify-content:space-between;
+    margin-top:8px;
+    font-size:13px;
+    opacity:0.8;
+}
+
+/* GRAPH */
+canvas {
+    max-width:350px;
+    margin:auto;
+}
+
+.block {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: showBlock 0.5s ease forwards;
+}
+.block {
+    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    font-size:14px;
+}
+@keyframes showBlock {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gantt-block {
+    transition: 0.3s;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>CPU Scheduler Dashboard</h1>
+
+<form method="POST">
+
+<div class="card">
+
+<table id="table">
+<tr><th>P</th><th>AT</th><th>BT</th><th>Priority</th></tr>
+
+<tr>
+<td>P1</td>
+<td><input name="arrival0" value="{{request.form.get('arrival0','')}}"></td>
+<td><input name="burst0" value="{{request.form.get('burst0','')}}"></td>
+<td><input name="priority0" value="{{request.form.get('priority0','')}}"></td>
+</tr>
+</table>
+
+<br>
+<button type="button" onclick="addRow()">+ Add Process</button>
+
+</div>
+
+<div class="card select-box">
+
+<h2>Select Algorithm</h2>
+
+<select name="algorithm" onchange="toggle(this.value)">
+<option value="fcfs">FCFS</option>
+<option value="sjf">SJF</option>
+<option value="srtf">SRTF</option>
+<option value="rr">Round Robin</option>
+<option value="priority">Priority</option>
+</select>
+
+<div id="q" style="display:none; margin-top:10px;">
+<input name="quantum" placeholder="Quantum">
+</div>
+
+<br><br>
+<button>Run Simulation</button>
+
+</div>
+
+</form>
+
+{% if result %}
+<div class="card">
+
+<table>
+<tr><th>P</th><th>Start</th><th>Finish</th><th>WT</th><th>TAT</th></tr>
+{% for p in result %}
+<tr>
+<td>{{p.id}}</td>
+<td>{{p.start}}</td>
+<td>{{p.finish}}</td>
+<td>{{p.waiting}}</td>
+<td>{{p.turnaround}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<p style="margin-top:10px;">
+Avg WT: <b>{{avg_wt}}</b> | Avg TAT: <b>{{avg_tat}}</b>
+</p>
+
+</div>
+{% endif %}
+
+{% if gantt %}
+<div class="card">
+
+<h3>Gantt Chart</h3>
+
+<!-- GANTT BLOCKS -->
+<div style="display:flex; align-items:center;">
+
+<div id="cpu" style="
+height:5px;
+background:#22c55e;
+width:0;
+margin-bottom:10px;
+transition:0.5s linear;
+"></div>
+{% for g in gantt %}
+<div class="block gantt-block"
+id="block{{loop.index0}}"
+style="
+width:{{(g.end-g.start)*40}}px;
+background:linear-gradient(135deg,#6366f1,#8b5cf6);
+margin-right:3px;
+border-radius:8px;
+text-align:center;
+padding:10px;
+animation-delay: {{ loop.index0 * 0.5 }}s;
+">
+{{g.id}}<br>{{g.start}}-{{g.end}}
+</div>
+{% endfor %}
+</div>
+
+<!-- PERFECT SCALE -->
+<div style="display:flex; margin-top:6px;">
+    {% for g in gantt %}
+    <div style="width:{{(g.end-g.start)*40}}px; text-align:left;">
+        {{g.start}}
+    </div>
+    {% endfor %}
+    <div>{{gantt[-1].end}}</div>
+</div>
+
+</div>
+{% endif %}
+
+{% if result %}
+<div class="card">
+<canvas id="chart"></canvas>
+</div>
+
+<script>
+new Chart(document.getElementById("chart"),{
+type:'bar',
+data:{
+labels:[{% for p in result %}'{{p.id}}',{% endfor %}],
+datasets:[
+{
+label:'WT',
+data:[{% for p in result %}{{p.waiting}},{% endfor %}],
+backgroundColor:'#8b5cf6'
+},
+{
+label:'TAT',
+data:[{% for p in result %}{{p.turnaround}},{% endfor %}],
+backgroundColor:'#22c55e'
+}
+]
+},
+options:{
+plugins:{legend:{labels:{color:'white'}}},
+scales:{
+x:{ticks:{color:'white'}},
+y:{ticks:{color:'white'}}
+}
+}
+});
+</script>
+{% endif %}
+
+</div>
+
+<script>
+let count=1;
+
+function addRow(){
+count++;
+let t=document.getElementById("table");
+let r=t.insertRow();
+r.innerHTML=`<td>P${count}</td>
+<td><input name="arrival${count-1}"></td>
+<td><input name="burst${count-1}"></td>
+<td><input name="priority${count-1}"></td>`;
+}
+
+function toggle(val){
+document.getElementById("q").style.display=(val==="rr")?"block":"none";
+}
+</script>
+<script>
+window.onload = function(){
+
+let blocks = document.querySelectorAll(".gantt-block");
+
+let i = 0;
+
+function runCPU(){
+    if(i >= blocks.length) return;
+
+    let block = blocks[i];
+
+    // highlight current process
+    block.style.boxShadow = "0 0 15px #22c55e";
+    block.style.transform = "scale(1.05)";
+
+    setTimeout(()=>{
+        block.style.boxShadow = "none";
+        block.style.transform = "scale(1)";
+        i++;
+        runCPU();
+    }, 800);
+}
+
+runCPU();
+
+}
+</script>
 </body>
 </html>
