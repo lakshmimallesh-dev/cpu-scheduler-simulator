@@ -5,13 +5,40 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+:root {
+    --bg: linear-gradient(-45deg,#0f172a,#1e1b4b,#020617,#312e81);
+    --text: white;
+}
+/* 🌙 DARK (default) */
+.dark {
+    --bg: linear-gradient(-45deg,#0f172a,#1e1b4b,#020617,#312e81);
+    --text: white;
+}
+
+/* ☀️ LIGHT */
+.light {
+    --bg: linear-gradient(-45deg,#e2e8f0,#f8fafc,#e0f2fe,#f1f5f9);
+    --text: black;
+}
+
+/* 🌊 OCEAN */
+.ocean {
+    --bg: linear-gradient(-45deg,#0ea5e9,#0284c7,#0369a1,#075985);
+    --text: white;
+}
+
+/* 🌇 SUNSET */
+.sunset {
+    --bg: linear-gradient(-45deg,#f97316,#fb7185,#f43f5e,#e11d48);
+    --text: white;
+}
 body {
     margin:0;
     font-family:'Segoe UI';
-    background: linear-gradient(-45deg, #0f172a, #1e1b4b, #020617, #312e81);
+    background: var(--bg);
+    color: var(--text);
     background-size: 400% 400%;
     animation: gradientBG 12s ease infinite;
-    color:white;
 }
 
 @keyframes gradientBG {
@@ -156,10 +183,27 @@ canvas {
     opacity: 0;
     transform: translateY(10px);
 }
+h1, h2, h3, p, span, label, td, th {
+    color: var(--text);
+}
 </style>
 </head>
 
 <body>
+
+<div style="position:fixed; top:15px; right:20px; z-index:1000;">
+<select onchange="changeTheme(this.value)" style="
+    padding:8px;
+    border-radius:8px;
+    background:#020617;
+    color:white;
+">
+<option value="dark">🌙 Dark</option>
+<option value="light">☀️ Light</option>
+<option value="ocean">🌊 Ocean</option>
+<option value="sunset">🌇 Sunset</option>
+</select>
+</div>
 
 <div class="container">
 
@@ -374,11 +418,19 @@ function loadSample(){
     count = sample.length;
 }
 document.getElementById("sampleBtn").onclick = loadSample;
+</script>
+<script>
+function changeTheme(theme){
+    document.body.className = theme;
+    localStorage.setItem("theme", theme);
+}
+document.addEventListener("DOMContentLoaded", function(){
 
+    // THEME
+    let saved = localStorage.getItem("theme") || "dark";
+    document.body.className = saved;
 
-
-window.onload = function(){
-
+    // GANTT ANIMATION
     let blocks = document.querySelectorAll(".gantt-block");
 
     let i = 0;
@@ -388,7 +440,6 @@ window.onload = function(){
 
         let block = blocks[i];
 
-        // show block
         block.style.opacity = "1";
         block.style.transform = "translateY(0)";
         block.style.boxShadow = "0 0 15px #22c55e";
@@ -401,8 +452,7 @@ window.onload = function(){
     }
 
     runCPU();
-}
-
+});
 </script>
 </body>
 </html>
