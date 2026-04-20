@@ -81,49 +81,86 @@ def sjf(processes):
 # ---------------- SRTF ----------------
 def srtf(processes):
     n = len(processes)
-    remaining_bt = {p['id']: p['burst'] for p in processes}
+
+    # Remaining burst times
+    remaining_bt = [p['burst'] for p in processes]
+
+    # Track times
+    start_time = [-1] * n
+    finish_time = [0] * n
+
     time = 0
     completed = 0
     gantt = []
-    last = None
-    start_time = 0
+
+    last_process = None
+    block_start = 0
 
     while completed < n:
-        available = [p for p in processes if p['arrival'] <= time and remaining_bt[p['id']] > 0]
+        idx = -1
+        min_bt = float('inf')
 
-        if not available:
+        # 🔍 Find process with shortest remaining time
+        for i in range(n):
+            if processes[i]['arrival'] <= time and remaining_bt[i] > 0:
+                if remaining_bt[i] < min_bt:
+                    min_bt = remaining_bt[i]
+                    idx = i
+
+        # ⏳ If no process available
+        if idx == -1:
             time += 1
             continue
 
-        available.sort(key=lambda x: remaining_bt[x['id']])
-        current = available[0]
+        # 🔥 Set start time (first execution only)
+        if start_time[idx] == -1:
+            start_time[idx] = time
 
-        if last != current['id']:
-            if last is not None:
-                gantt.append({'id': last, 'start': start_time, 'end': time})
-            start_time = time
-            last = current['id']
+        current_process = processes[idx]['id']
 
-        remaining_bt[current['id']] -= 1
+        # 🎯 Gantt block handling (merge continuous execution)
+        if last_process != current_process:
+            if last_process is not None:
+                gantt.append({
+                    'id': last_process,
+                    'start': block_start,
+                    'end': time
+                })
+            block_start = time
+            last_process = current_process
+
+        # ⚡ Execute for 1 unit
+        remaining_bt[idx] -= 1
         time += 1
 
-        if remaining_bt[current['id']] == 0:
+        # ✅ If process finishes
+        if remaining_bt[idx] == 0:
+            finish_time[idx] = time
             completed += 1
 
-    if last is not None:
-        gantt.append({'id': last, 'start': start_time, 'end': time})
+    # 🧩 Add last gantt block
+    if last_process is not None:
+        gantt.append({
+            'id': last_process,
+            'start': block_start,
+            'end': time
+        })
 
+    # 📊 Calculate WT and TAT
     result = []
-    finish = {g['id']: g['end'] for g in gantt}
+    total_wt = total_tat = 0
 
-    for p in processes:
-        tat = finish[p['id']] - p['arrival']
-        wt = tat - p['burst']
+    for i in range(n):
+        tat = finish_time[i] - processes[i]['arrival']
+        wt = tat - processes[i]['burst']
+
+        total_wt += wt
+        total_tat += tat
 
         result.append({
-            'id': p['id'],
-            'start': '-',
-            'finish': finish[p['id']],
+            'id': processes[i]['id'],
+            'start': start_time[i],
+            'finish': finish_time[i],
             'waiting': wt,
             'turnaround': tat
         })
@@ -141,6 +178,8 @@ def round_robin(processes, quantum):
     processes.sort(key=lambda x: x['arrival'])
     i = 0
 
+    start_time = {}   # 🔥 track first start
+
     while i < len(processes) or queue:
         while i < len(processes) and processes[i]['arrival'] <= time:
             queue.append(processes[i])
@@ -151,6 +190,11 @@ def round_robin(processes, quantum):
             continue
 
         p = queue.pop(0)
+
+        # 🔥 SET FIRST START TIME
+        if p['id'] not in start_time:
+            start_time[p['id']] = time
+
         exec_time = min(quantum, remaining[p['id']])
 
         start = time
@@ -175,7 +219,7 @@ def round_robin(processes, quantum):
 
         result.append({
             'id': p['id'],
-            'start': '-',
+            'start': start_time[p['id']],
             'finish': finish[p['id']],
             'waiting': wt,
             'turnaround': tat
@@ -254,8 +298,12 @@ def simulator():
             if arrival is None:
                 break
 
-            if arrival == '' or burst == '' or priority == '':
-                break
+            if arrival == '' or burst == '':
+                i += 1
+                continue
+
+            if priority == '' or priority is None:
+                priority = 0
 
             processes.append({
                 'id': f'P{i+1}',
@@ -277,15 +325,19 @@ def simulator():
 
         elif algorithm == 'rr':
             quantum = int(request.form.get('quantum') or 1)
+            if quantum <= 0:
+                quantum = 1
             result, gantt = round_robin(processes, quantum)
 
         elif algorithm == 'priority':
             result, gantt = priority_scheduling(processes)
 
-        if result:
+        if result and len(result) > 0:
             n = len(result)
             avg_wt = round(sum(p['waiting'] for p in result) / n, 2)
             avg_tat = round(sum(p['turnaround'] for p in result) / n, 2)
+        else:
+            avg_wt = avg_tat = 0
 
     return render_template('index.html',
                            result=result,

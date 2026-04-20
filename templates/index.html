@@ -1,255 +1,3 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-<title>Simulator</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-body {
-    font-family:'Segoe UI';
-    background:#0b0f19;
-    color:white;
-}
-
-.container {
-    width:90%;
-    margin:auto;
-}
-
-/* CARD */
-.card {
-    background:#111827;
-    padding:20px;
-    border-radius:12px;
-    margin-top:20px;
-}
-
-/* TABLE */
-table {
-    width:100%;
-    border-collapse:collapse;
-}
-
-th {
-    background:#1f2937;
-}
-
-td,th {
-    padding:10px;
-    border:1px solid #374151;
-}
-
-/* INPUT */
-input {
-    width:80px;
-    padding:5px;
-}
-
-/* BUTTON */
-button {
-    padding:10px 20px;
-    background:#7c3aed;
-    border:none;
-    border-radius:6px;
-    color:white;
-}
-
-/* CENTER SELECT */
-.select-box {
-    text-align:center;
-    margin-top:20px;
-}
-
-select {
-    padding:10px;
-    font-size:18px;
-}
-
-/* GANTT */
-.timeline {
-    display:flex;
-    align-items:center;
-}
-
-.block {
-    text-align:center;
-    margin:2px;
-    padding:10px;
-    border-radius:6px;
-    color:white;
-}
-
-.time {
-    display:flex;
-    justify-content:space-between;
-    font-size:12px;
-}
-
-/* GRAPH */
-canvas {
-    max-width:400px;
-    margin:auto;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>CPU Scheduler Dashboard</h1>
-
-<form method="POST">
-
-<div class="card">
-
-<table id="table">
-<tr><th>P</th><th>AT</th><th>BT</th><th>Priority</th></tr>
-
-<tr>
-<td>P1</td>
-<td><input name="arrival0" value="{{request.form.get('arrival0','')}}"></td>
-<td><input name="burst0" value="{{request.form.get('burst0','')}}"></td>
-<td><input name="priority0" value="{{request.form.get('priority0','')}}"></td>
-</tr>
-</table>
-
-<br>
-<button type="button" onclick="addRow()">Add Process</button>
-
-</div>
-
-<div class="card select-box">
-
-<h2>Select Algorithm</h2>
-
-<select name="algorithm" onchange="toggle(this.value)">
-<option value="fcfs">FCFS</option>
-<option value="sjf">SJF</option>
-<option value="srtf">SRTF</option>
-<option value="rr">Round Robin</option>
-<option value="priority">Priority</option>
-</select>
-
-<div id="q" style="display:none;">
-<input name="quantum" placeholder="Quantum">
-</div>
-
-<br><br>
-<button>Run</button>
-
-</div>
-
-</form>
-
-{% if result %}
-<div class="card">
-
-<table>
-<tr><th>P</th><th>Start</th><th>Finish</th><th>WT</th><th>TAT</th></tr>
-{% for p in result %}
-<tr>
-<td>{{p.id}}</td>
-<td>{{p.start}}</td>
-<td>{{p.finish}}</td>
-<td>{{p.waiting}}</td>
-<td>{{p.turnaround}}</td>
-</tr>
-{% endfor %}
-</table>
-
-<p>Avg WT: {{avg_wt}} | Avg TAT: {{avg_tat}}</p>
-
-</div>
-{% endif %}
-
-{% if gantt %}
-<div class="card">
-
-<h2>Gantt Chart</h2>
-
-<div class="timeline">
-{% for g in gantt %}
-<div class="block"
-style="width:{{(g.end-g.start)*40}}px;
-background:{{ ['#7c3aed','#ec4899','#22c55e','#f97316'][loop.index0%4] }}">
-{{g.id}}<br>
-<small>{{g.start}}-{{g.end}}</small>
-</div>
-{% endfor %}
-</div>
-
-<div class="time">
-    <span>{{gantt[0].start}}</span>
-    {% for g in gantt %}
-        <span>{{g.end}}</span>
-    {% endfor %}
-</div>
-
-</div>
-{% endif %}
-
-{% if result %}
-<div class="card">
-<canvas id="chart"></canvas>
-</div>
-
-<script>
-new Chart(document.getElementById("chart"),{
-type:'bar',
-data:{
-labels:[{% for p in result %}'{{p.id}}',{% endfor %}],
-datasets:[
-{
-label:'Waiting Time',
-data:[{% for p in result %}{{p.waiting}},{% endfor %}],
-backgroundColor:'#8b5cf6'
-},
-{
-label:'Turnaround Time',
-data:[{% for p in result %}{{p.turnaround}},{% endfor %}],
-backgroundColor:'#22c55e'
-}
-]
-},
-options:{
-responsive:true,
-plugins:{
-legend:{labels:{color:'white'}}
-},
-scales:{
-x:{ticks:{color:'white'}},
-y:{ticks:{color:'white'}}
-}
-}
-});
-</script>
-{% endif %}
-
-</div>
-
-<script>
-let count=1;
-
-function addRow(){
-count++;
-let t=document.getElementById("table");
-let r=t.insertRow();
-r.innerHTML=`<td>P${count}</td>
-<td><input name="arrival${count-1}"></td>
-<td><input name="burst${count-1}"></td>
-<td><input name="priority${count-1}"></td>`;
-}
-
-function toggle(val){
-document.getElementById("q").style.display=(val==="rr")?"block":"none";
-}
-</script>
-
-</body>
-</html> -->
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -404,6 +152,10 @@ canvas {
 .gantt-block {
     transition: 0.3s;
 }
+.gantt-block {
+    opacity: 0;
+    transform: translateY(10px);
+}
 </style>
 </head>
 
@@ -430,6 +182,7 @@ canvas {
 
 <br>
 <button type="button" onclick="addRow()">+ Add Process</button>
+<button type="button" id="sampleBtn">⚡ Load Sample Data</button>
 
 </div>
 
@@ -485,40 +238,43 @@ Avg WT: <b>{{avg_wt}}</b> | Avg TAT: <b>{{avg_tat}}</b>
 <h3>Gantt Chart</h3>
 
 <!-- GANTT BLOCKS -->
-<div style="display:flex; align-items:center;">
+<div style="display:flex; gap:4px; align-items:flex-end;">
 
-<div id="cpu" style="
-height:5px;
-background:#22c55e;
-width:0;
-margin-bottom:10px;
-transition:0.5s linear;
-"></div>
 {% for g in gantt %}
-<div class="block gantt-block"
-id="block{{loop.index0}}"
-style="
-width:{{(g.end-g.start)*40}}px;
-background:linear-gradient(135deg,#6366f1,#8b5cf6);
-margin-right:3px;
-border-radius:8px;
-text-align:center;
-padding:10px;
-animation-delay: {{ loop.index0 * 0.5 }}s;
+<div class="gantt-block" style="
+    width:{{(g.end-g.start)*40}}px;
+    height:45px;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    border-radius:8px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    font-size:13px;
 ">
-{{g.id}}<br>{{g.start}}-{{g.end}}
+    {{g.id}}<br>{{g.start}}-{{g.end}}
 </div>
 {% endfor %}
+
 </div>
 
-<!-- PERFECT SCALE -->
-<div style="display:flex; margin-top:6px;">
-    {% for g in gantt %}
-    <div style="width:{{(g.end-g.start)*40}}px; text-align:left;">
-        {{g.start}}
-    </div>
-    {% endfor %}
-    <div>{{gantt[-1].end}}</div>
+<!-- SCALE -->
+<div style="display:flex; gap:4px; margin-top:6px;">
+
+{% for g in gantt %}
+<div style="
+    width:{{(g.end-g.start)*40}}px;
+    font-size:12px;
+    text-align:left;
+">
+    {{g.start}}
+</div>
+{% endfor %}
+
+<div style="font-size:12px;">
+    {{gantt[-1].end}}
+</div>
+
 </div>
 
 </div>
@@ -574,36 +330,79 @@ r.innerHTML=`<td>P${count}</td>
 }
 
 function toggle(val){
-document.getElementById("q").style.display=(val==="rr")?"block":"none";
+    document.getElementById("q").style.display = (val==="rr") ? "block" : "none";
+
+    let priorityInputs = document.querySelectorAll("input[name^='priority']");
+    let msg = document.getElementById("priorityMsg");
+
+    if(val === "priority"){
+        priorityInputs.forEach(inp => inp.disabled = false);
+        msg.style.display = "none";
+    } else {
+        priorityInputs.forEach(inp => inp.disabled = true);
+        msg.style.display = "block";
+    }
 }
 </script>
 <script>
+
+function loadSample(){
+
+    let table = document.getElementById("table");
+
+    table.innerHTML = `
+    <tr><th>P</th><th>AT</th><th>BT</th><th>Priority</th></tr>
+    `;
+
+    let sample = [
+        {at:0, bt:5, pr:2},
+        {at:1, bt:3, pr:1},
+        {at:2, bt:8, pr:4},
+        {at:3, bt:6, pr:2}
+    ];
+
+    sample.forEach((p, i)=>{
+        let r = table.insertRow();
+        r.innerHTML = `
+        <td>P${i+1}</td>
+        <td><input name="arrival${i}" value="${p.at}"></td>
+        <td><input name="burst${i}" value="${p.bt}"></td>
+        <td><input name="priority${i}" value="${p.pr}"></td>
+        `;
+    });
+
+    count = sample.length;
+}
+document.getElementById("sampleBtn").onclick = loadSample;
+
+
+
 window.onload = function(){
 
-let blocks = document.querySelectorAll(".gantt-block");
+    let blocks = document.querySelectorAll(".gantt-block");
 
-let i = 0;
+    let i = 0;
 
-function runCPU(){
-    if(i >= blocks.length) return;
+    function runCPU(){
+        if(i >= blocks.length) return;
 
-    let block = blocks[i];
+        let block = blocks[i];
 
-    // highlight current process
-    block.style.boxShadow = "0 0 15px #22c55e";
-    block.style.transform = "scale(1.05)";
+        // show block
+        block.style.opacity = "1";
+        block.style.transform = "translateY(0)";
+        block.style.boxShadow = "0 0 15px #22c55e";
 
-    setTimeout(()=>{
-        block.style.boxShadow = "none";
-        block.style.transform = "scale(1)";
-        i++;
-        runCPU();
-    }, 800);
+        setTimeout(()=>{
+            block.style.boxShadow = "none";
+            i++;
+            runCPU();
+        }, 600);
+    }
+
+    runCPU();
 }
 
-runCPU();
-
-}
 </script>
 </body>
 </html>
