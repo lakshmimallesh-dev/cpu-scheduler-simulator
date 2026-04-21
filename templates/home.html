@@ -8,6 +8,11 @@
 :root {
     --bg: linear-gradient(-45deg,#0f172a,#1e1b4b,#020617,#312e81);
     --text: white;
+
+    /* ADD THESE (IMPORTANT 🔥) */
+    --card-bg: rgba(255,255,255,0.05);
+    --box-bg: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.1);
 }
 
 /* 🌙 DARK (default) */
@@ -18,10 +23,16 @@
 
 /* ☀️ LIGHT */
 .light {
-    --bg: linear-gradient(-45deg,#e2e8f0,#f8fafc,#e0f2fe,#f1f5f9);
-    --text: black;
-}
+    --bg: linear-gradient(-45deg,#f8fafc,#e2e8f0,#f1f5f9,#e0f2fe);
+    --text: #0f172a;
 
+    --card-bg: #ffffff;
+    --box-bg: #f1f5f9;
+    --border: #cbd5f5;
+}
+.light .chat-popup {
+    background: white;
+}
 /* 🌊 OCEAN */
 .ocean {
     --bg: linear-gradient(-45deg,#0ea5e9,#0284c7,#0369a1,#075985);
@@ -86,13 +97,14 @@ button {
 
 /* CARD */
 .card {
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(10px);
+    background: var(--card-bg);
+    backdrop-filter: none;
+    border: 1px solid var(--border);
     padding:20px;
     border-radius:16px;
-    cursor:pointer;
     transition:0.3s;
 }
+
 
 .card:hover {
     transform:translateY(-5px);
@@ -104,7 +116,7 @@ button {
     display:none;
     margin-top:15px;
     padding:15px;
-    background:#020617;
+    background: var(--box-bg);
     border-radius:10px;
     font-size:14px;
     line-height:1.5;
@@ -115,21 +127,23 @@ table {
     margin-top:10px;
     border-collapse:collapse;
 }
-
+table {
+    background: var(--card-bg);
+    color: var(--text);
+}
 td,th {
     border:1px solid rgba(255,255,255,0.1);
     padding:6px;
     text-align:center;
 }
-.details {
-    display:none;
-    margin-top:15px;
-    padding:15px;
-    background:#020617;
-    border-radius:10px;
-    font-size:14px;
-    line-height:1.5;
-    animation: fadeIn 0.3s ease;
+th {
+    background: var(--box-bg);
+    color: var(--text);
+}
+.chat-input input {
+    background: var(--box-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
 }
 
 @keyframes fadeIn {
@@ -210,11 +224,14 @@ td,th {
 .chat-box {
     height: 300px;
     overflow-y: auto;
-    background: #020617;
+    background: rgba(0,0,0,0.3);
     padding: 15px;
     border-radius: 10px;
+    backdrop-filter: none;
 }
-
+.light .chat-box {
+    background: #f1f5f9;
+}
 .msg {
     padding: 10px;
     margin: 8px 0;
@@ -224,12 +241,14 @@ td,th {
 }
 
 .user {
-    background: #7c3aed;
+    background: linear-gradient(135deg,#7c3aed,#ec4899);
+    color: white;
     align-self: flex-end;
 }
 
 .bot {
-    background: #1e293b;
+    background: var(--box-bg);
+    color: var(--text);
 }
 .chat-card {
     display: flex;
@@ -241,10 +260,13 @@ td,th {
 .chat-box {
     flex: 1;
     overflow-y: auto;
-    background: #020617;
+    background: var(--box-bg);
     padding: 10px;
     border-radius: 10px;
     margin-top: 10px;
+    .chatbot {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
 }
 
 .chat-input {
@@ -291,7 +313,8 @@ td,th {
     right: 20px;
     width: 300px;
     height: 400px;
-    background: #020617;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: 12px;
     display: none;
     flex-direction: column;
@@ -382,11 +405,10 @@ td,th {
 }
 
 .suggestions button {
-    background: #1e293b;
-    border: none;
+    background: var(--box-bg);
+    color: var(--text);
     padding: 6px 10px;
     border-radius: 6px;
-    color: white;
     font-size: 12px;
     cursor: pointer;
     transition: 0.2s;
@@ -404,6 +426,22 @@ td,th {
 h1, h2, h3, p, span, label, td, th {
     color: var(--text);
 }
+select {
+    padding:8px;
+    border-radius:8px;
+    background: var(--card-bg, #1e293b);
+    color: var(--text, white);
+    border: 1px solid var(--border, rgba(255,255,255,0.2));
+}
+select option {
+    background: #1e293b;
+    color: white;
+}
+
+.light select option {
+    background: white;
+    color: black;
+}
 </style>
 </head>
 
@@ -413,8 +451,8 @@ h1, h2, h3, p, span, label, td, th {
 <select onchange="changeTheme(this.value)" style="
     padding:8px;
     border-radius:8px;
-    background:#020617;
-    color:white;
+    background:var(--card-bg);
+    color:var(--text);
 ">
 <option value="dark">🌙 Dark</option>
 <option value="light">☀️ Light</option>

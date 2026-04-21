@@ -7,6 +7,11 @@
 :root {
     --bg: linear-gradient(-45deg,#0f172a,#1e1b4b,#020617,#312e81);
     --text: white;
+
+    /* ADD THESE (IMPORTANT 🔥) */
+    --card-bg: rgba(255,255,255,0.05);
+    --box-bg: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.1);
 }
 /* 🌙 DARK (default) */
 .dark {
@@ -16,8 +21,12 @@
 
 /* ☀️ LIGHT */
 .light {
-    --bg: linear-gradient(-45deg,#e2e8f0,#f8fafc,#e0f2fe,#f1f5f9);
-    --text: black;
+    --bg: linear-gradient(-45deg,#f8fafc,#e2e8f0,#f1f5f9,#e0f2fe);
+    --text: #0f172a;
+
+    --card-bg: #ffffff;
+    --box-bg: #f1f5f9;
+    --border: #cbd5f5;
 }
 
 /* 🌊 OCEAN */
@@ -179,9 +188,12 @@ body {
 .features div {
     animation: pulse 3s infinite;
 }
-
+.features div {
+    color: var(--text);
+    opacity: 1;
+}
 @keyframes pulse {
-    0%,100%{opacity:0.6;}
+    0%,100%{opacity:0.9;}
     50%{opacity:1;}
 }
 
@@ -195,6 +207,22 @@ body {
 }
 h1, h2, h3, p, span, label, td, th {
     color: var(--text);
+}
+select {
+    padding:8px;
+    border-radius:8px;
+    background: var(--card-bg, #1e293b);
+    color: var(--text, white);
+    border: 1px solid var(--border, rgba(255,255,255,0.2));
+}
+select option {
+    background: #1e293b;
+    color: white;
+}
+
+.light select option {
+    background: white;
+    color: black;
 }
 </style>
 </head>

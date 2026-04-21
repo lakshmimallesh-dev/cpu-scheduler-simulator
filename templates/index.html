@@ -8,6 +8,11 @@
 :root {
     --bg: linear-gradient(-45deg,#0f172a,#1e1b4b,#020617,#312e81);
     --text: white;
+
+    /* ADD THESE (IMPORTANT 🔥) */
+    --card-bg: rgba(255,255,255,0.05);
+    --box-bg: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.1);
 }
 /* 🌙 DARK (default) */
 .dark {
@@ -17,8 +22,12 @@
 
 /* ☀️ LIGHT */
 .light {
-    --bg: linear-gradient(-45deg,#e2e8f0,#f8fafc,#e0f2fe,#f1f5f9);
-    --text: black;
+    --bg: linear-gradient(-45deg,#f8fafc,#e2e8f0,#f1f5f9,#e0f2fe);
+    --text: #0f172a;
+
+    --card-bg: #ffffff;
+--box-bg: #e2e8f0;
+--border: #94a3b8;
 }
 
 /* 🌊 OCEAN */
@@ -62,13 +71,11 @@ h1 {
 
 /* CARD */
 .card {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
     padding:20px;
-    border-radius:18px;
-    margin-top:25px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    border-radius:16px;
     transition:0.3s;
 }
 
@@ -84,21 +91,29 @@ table {
 }
 
 th {
-    background:#1e293b;
+    background: var(--box-bg);
+    color: var(--text);
 }
 
 td,th {
     padding:12px;
-    border:1px solid rgba(255,255,255,0.1);
 }
-
+td,th {
+    border:1px solid var(--border, rgba(255,255,255,0.1));
+}
 /* INPUT */
 input {
-    width:80px;
-    padding:6px;
-    border-radius:6px;
-    border:none;
-    outline:none;
+    background: var(--box-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    border-radius: 6px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 5px rgba(124,58,237,0.5);
 }
 
 /* BUTTON */
@@ -111,7 +126,9 @@ button {
     cursor:pointer;
     transition:0.3s;
 }
-
+.block {
+    color: white;
+}
 button:hover {
     opacity:0.85;
 }
@@ -122,14 +139,21 @@ button:hover {
 }
 
 select {
-    padding:12px;
-    border-radius:10px;
-    font-size:16px;
-    background:#020617;
-    color:white;
-    border:1px solid rgba(255,255,255,0.1);
+    padding:8px;
+    border-radius:8px;
+    background: var(--card-bg, #1e293b);
+    color: var(--text, white);
+    border: 1px solid var(--border, rgba(255,255,255,0.2));
+}
+select option {
+    background: #1e293b;
+    color: white;
 }
 
+.light select option {
+    background: white;
+    color: black;
+}
 /* GANTT */
 .timeline {
     display:flex;
@@ -156,8 +180,10 @@ select {
 
 /* GRAPH */
 canvas {
-    max-width:350px;
+    max-width:500px;
+    height:300px !important;
     margin:auto;
+    display:block;
 }
 
 .block {
@@ -186,17 +212,28 @@ canvas {
 h1, h2, h3, p, span, label, td, th {
     color: var(--text);
 }
+canvas {
+    background: transparent;
+    padding: 10px;
+    border-radius: 10px;
+}
+input:disabled {
+    background: #cbd5e1 !important;
+    color: #64748b !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
 </style>
 </head>
 
 <body>
 
 <div style="position:fixed; top:15px; right:20px; z-index:1000;">
-<select onchange="changeTheme(this.value)" style="
+<select id="themeSelect" onchange="changeTheme(this.value)" style="
     padding:8px;
     border-radius:8px;
-    background:#020617;
-    color:white;
+    background:var(--card-bg);
+    color:var(--text);
 ">
 <option value="dark">🌙 Dark</option>
 <option value="light">☀️ Light</option>
@@ -330,6 +367,14 @@ Avg WT: <b>{{avg_wt}}</b> | Avg TAT: <b>{{avg_tat}}</b>
 </div>
 
 <script>
+function getTextColor(){
+    let theme = document.body.className;
+
+    if(theme === "light"){
+        return "#0f172a";
+    }
+    return "#ffffff";
+}
 new Chart(document.getElementById("chart"),{
 type:'bar',
 data:{
@@ -338,20 +383,56 @@ datasets:[
 {
 label:'WT',
 data:[{% for p in result %}{{p.waiting}},{% endfor %}],
-backgroundColor:'#8b5cf6'
+backgroundColor: document.body.className === "light"
+    ? "#6d28d9"
+    : "#8b5cf6"
 },
 {
 label:'TAT',
 data:[{% for p in result %}{{p.turnaround}},{% endfor %}],
-backgroundColor:'#22c55e'
+backgroundColor: document.body.className === "light"
+    ? "#16a34a"
+    : "#22c55e"
 }
 ]
 },
 options:{
-plugins:{legend:{labels:{color:'white'}}},
+maintainAspectRatio: false,
+backgroundColor: 'transparent',
+
+plugins:{
+    legend:{
+        labels:{
+            color: getTextColor()
+        }
+    }
+},
+
 scales:{
-x:{ticks:{color:'white'}},
-y:{ticks:{color:'white'}}
+    x:{
+        ticks:{ color: getTextColor() },
+        grid:{
+            color: document.body.className === "light"
+                ? "rgba(0,0,0,0.5)"
+                : "rgba(255,255,255,0.2)"
+        },
+        border:{
+            color: getTextColor(),
+            width: 2
+        }
+    },
+    y:{
+        ticks:{ color: getTextColor() },
+        grid:{
+            color: document.body.className === "light"
+                ? "rgba(0,0,0,0.5)"
+                : "rgba(255,255,255,0.2)"
+        },
+        border:{
+            color: getTextColor(),
+            width: 2
+        }
+    }
 }
 }
 });
@@ -383,7 +464,10 @@ function toggle(val){
         priorityInputs.forEach(inp => inp.disabled = false);
         msg.style.display = "none";
     } else {
-        priorityInputs.forEach(inp => inp.disabled = true);
+        priorityInputs.forEach(inp => {
+    inp.disabled = true;
+    inp.value = "";
+});
         msg.style.display = "block";
     }
 }
@@ -423,16 +507,17 @@ document.getElementById("sampleBtn").onclick = loadSample;
 function changeTheme(theme){
     document.body.className = theme;
     localStorage.setItem("theme", theme);
+    location.reload();
 }
 document.addEventListener("DOMContentLoaded", function(){
 
-    // THEME
     let saved = localStorage.getItem("theme") || "dark";
     document.body.className = saved;
-
-    // GANTT ANIMATION
     let blocks = document.querySelectorAll(".gantt-block");
-
+    let dropdown = document.getElementById("themeSelect");
+    if(dropdown){
+    dropdown.value = saved;
+}
     let i = 0;
 
     function runCPU(){
