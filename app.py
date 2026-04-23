@@ -82,10 +82,10 @@ def sjf(processes):
 def srtf(processes):
     n = len(processes)
 
-    # Remaining burst times
+
     remaining_bt = [p['burst'] for p in processes]
 
-    # Track times
+
     start_time = [-1] * n
     finish_time = [0] * n
 
@@ -100,25 +100,23 @@ def srtf(processes):
         idx = -1
         min_bt = float('inf')
 
-        # 🔍 Find process with shortest remaining time
+  
         for i in range(n):
             if processes[i]['arrival'] <= time and remaining_bt[i] > 0:
                 if remaining_bt[i] < min_bt:
                     min_bt = remaining_bt[i]
                     idx = i
 
-        # ⏳ If no process available
+
         if idx == -1:
             time += 1
             continue
 
-        # 🔥 Set start time (first execution only)
         if start_time[idx] == -1:
             start_time[idx] = time
 
         current_process = processes[idx]['id']
 
-        # 🎯 Gantt block handling (merge continuous execution)
         if last_process != current_process:
             if last_process is not None:
                 gantt.append({
@@ -129,16 +127,14 @@ def srtf(processes):
             block_start = time
             last_process = current_process
 
-        # ⚡ Execute for 1 unit
         remaining_bt[idx] -= 1
         time += 1
 
-        # ✅ If process finishes
         if remaining_bt[idx] == 0:
             finish_time[idx] = time
             completed += 1
 
-    # 🧩 Add last gantt block
+
     if last_process is not None:
         gantt.append({
             'id': last_process,
@@ -146,7 +142,7 @@ def srtf(processes):
             'end': time
         })
 
-    # 📊 Calculate WT and TAT
+
     result = []
     total_wt = total_tat = 0
 
@@ -178,7 +174,7 @@ def round_robin(processes, quantum):
     processes.sort(key=lambda x: x['arrival'])
     i = 0
 
-    start_time = {}   # 🔥 track first start
+    start_time = {}
 
     while i < len(processes) or queue:
         while i < len(processes) and processes[i]['arrival'] <= time:
@@ -191,7 +187,7 @@ def round_robin(processes, quantum):
 
         p = queue.pop(0)
 
-        # 🔥 SET FIRST START TIME
+
         if p['id'] not in start_time:
             start_time[p['id']] = time
 
@@ -293,7 +289,8 @@ def simulator():
         while True:
             arrival = request.form.get(f'arrival{i}')
             burst = request.form.get(f'burst{i}')
-            priority = request.form.get(f'priority{i}')
+            p = request.form.get(f'priority{i}')
+            priority = int(p) if p and p.isdigit() else 0
 
             if arrival is None:
                 break
@@ -340,10 +337,11 @@ def simulator():
             avg_wt = avg_tat = 0
 
     return render_template('index.html',
-                           result=result,
-                           gantt=gantt,
-                           avg_wt=avg_wt,
-                           avg_tat=avg_tat)
+                       result=result,
+                       gantt=gantt,
+                       avg_wt=avg_wt,
+                       avg_tat=avg_tat,
+                       form_data=request.form)
 
 
 # ---------------- CHATBOT (WITH FALLBACK) ----------------
@@ -363,7 +361,7 @@ def local_answer(q):
 
         return text
 
-    # 🔥 COMPARISON MODE
+
     if "vs" in q or "compare" in q or "difference" in q:
 
         if "fcfs" in q and "sjf" in q:
@@ -398,7 +396,7 @@ SRTF:
 🚀 Conclusion:
 SRTF is more optimal"""
 
-    # 🔥 GENERAL CONCEPTS
+
     if "scheduling" in q or "cpu scheduling" in q:
         return """🔥 CPU Scheduling:
 
@@ -428,7 +426,7 @@ Use Aging"""
 • Increases priority over time
 • Prevents starvation"""
 
-    # 🔥 SINGLE TOPICS
+
     if "fcfs" in q:
         return format_answer(
             "🔥 FCFS",
@@ -475,7 +473,6 @@ def ask():
     if question in ["hi", "hello", "hey"]:
         return jsonify({"answer": "Hey bro 👋 Ask me anything about CPU scheduling!"})
 
-    # 🔥 FORCE LOCAL ANSWER FOR OS QUESTIONS
     if any(word in question for word in [
         "cpu", "process", "scheduling", "fcfs", "sjf",
         "srtf", "round", "priority", "starvation", "aging"

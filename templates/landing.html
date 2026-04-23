@@ -8,18 +8,18 @@
     --bg: linear-gradient(-45deg,#0f172a,#1e1b4b,#020617,#312e81);
     --text: white;
 
-    /* ADD THESE (IMPORTANT 🔥) */
+
     --card-bg: rgba(255,255,255,0.05);
     --box-bg: rgba(255,255,255,0.08);
     --border: rgba(255,255,255,0.1);
 }
-/* 🌙 DARK (default) */
+
 .dark {
     --bg: linear-gradient(-45deg,#0f172a,#1e1b4b,#020617,#312e81);
     --text: white;
 }
 
-/* ☀️ LIGHT */
+
 .light {
     --bg: linear-gradient(-45deg,#f8fafc,#e2e8f0,#f1f5f9,#e0f2fe);
     --text: #0f172a;
@@ -29,13 +29,13 @@
     --border: #cbd5f5;
 }
 
-/* 🌊 OCEAN */
+
 .ocean {
     --bg: linear-gradient(-45deg,#0ea5e9,#0284c7,#0369a1,#075985);
     --text: white;
 }
 
-/* 🌇 SUNSET */
+
 .sunset {
     --bg: linear-gradient(-45deg,#f97316,#fb7185,#f43f5e,#e11d48);
     --text: white;
@@ -62,7 +62,7 @@ body {
     100%{background-position:0% 50%;}
 }
 
-/* BACKGROUND BLOBS */
+
 .blob {
     position:absolute;
     width:300px;
@@ -82,7 +82,7 @@ body {
     to { transform: translateY(-40px); }
 }
 
-/* COMPUTER */
+
 .computer {
     width:500px;
     max-width:90%;
@@ -97,7 +97,7 @@ body {
     to {transform: scale(1); opacity:1;}
 }
 
-/* SCREEN */
+
 .screen {
     background:#020617;
     padding:30px;
@@ -105,20 +105,20 @@ body {
     box-shadow:0 0 40px rgba(124,58,237,0.5);
 }
 
-/* TITLE */
+
 .title {
     font-size:24px;
     margin-bottom:10px;
 }
 
-/* TAGLINE */
+
 .tagline {
     font-size:14px;
     opacity:0.7;
     margin-bottom:20px;
 }
 
-/* SYSTEM TEXT */
+
 .system-text {
     font-size:12px;
     opacity:0.5;
@@ -126,7 +126,7 @@ body {
     height:18px;
 }
 
-/* BUTTONS */
+
 .btn {
     display:block;
     width:80%;
@@ -146,14 +146,13 @@ body {
     box-shadow:0 0 20px rgba(236,72,153,0.6);
 }
 
-/* STATUS */
 .status {
     margin-top:10px;
     font-size:12px;
     opacity:0.7;
 }
 
-/* MONITOR */
+
 .monitor {
     background:#111827;
     padding:15px;
@@ -176,7 +175,6 @@ body {
     border-radius:5px;
 }
 
-/* FEATURES */
 .features {
     display:flex;
     gap:25px;
@@ -286,7 +284,7 @@ select option {
 </div>
 
 <script>
-// Navigation
+
 function goHome(){
     window.location.href = "/home";
 }
@@ -295,14 +293,12 @@ function goSim(){
     window.location.href = "/simulator";
 }
 
-// ENTER KEY
 document.addEventListener("keydown", function(e){
     if(e.key === "Enter"){
         goSim();
     }
 });
 
-// SYSTEM TEXT ANIMATION
 let texts = [
     "Initializing CPU...",
     "Loading scheduler...",

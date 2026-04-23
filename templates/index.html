@@ -255,9 +255,9 @@ input:disabled {
 
 <tr>
 <td>P1</td>
-<td><input name="arrival0" value="{{request.form.get('arrival0','')}}"></td>
-<td><input name="burst0" value="{{request.form.get('burst0','')}}"></td>
-<td><input name="priority0" value="{{request.form.get('priority0','')}}"></td>
+<td><input name="arrival0" value="{{ form_data.get('arrival0','') }}"></td>
+<td><input name="burst0" value="{{ form_data.get('burst0','') }}"></td>
+<td><input name="priority0" value="{{ form_data.get('priority0','') }}"></td>
 </tr>
 </table>
 
@@ -285,7 +285,9 @@ input:disabled {
 
 <br><br>
 <button>Run Simulation</button>
-
+<button type="button" onclick="suggestAlgo()" class="btn">
+⚡ Check Best Algorithm
+</button>
 </div>
 
 </form>
@@ -449,7 +451,7 @@ count++;
 let t=document.getElementById("table");
 let r=t.insertRow();
 r.innerHTML=`<td>P${count}</td>
-<td><input name="arrival${count-1}"></td>
+<td><input name="arrival${count-1}" value=""></td>
 <td><input name="burst${count-1}"></td>
 <td><input name="priority${count-1}"></td>`;
 }
@@ -471,7 +473,51 @@ function toggle(val){
         msg.style.display = "block";
     }
 }
+
 </script>
+<script>
+function suggestAlgo() {
+
+    // ✅ CORRECT INPUT SELECTION (your actual names)
+    let btInputs = document.querySelectorAll("input[name^='burst']");
+
+    let values = [];
+
+    btInputs.forEach(input => {
+        let val = input.value.trim();
+
+        // ✅ ignore empty fields
+        if (val !== "" && !isNaN(val)) {
+            values.push(parseInt(val));
+        }
+    });
+
+    // ❌ no data case
+    if (values.length === 0) {
+        alert("Enter process data first!");
+        return;
+    }
+
+    let max = Math.max(...values);
+    let min = Math.min(...values);
+
+    let suggestion = "";
+
+    // 🎯 SMART LOGIC
+    if (max - min > 5) {
+        suggestion = "Use SJF or SRTF (burst times vary a lot)";
+    } 
+    else if (values.length > 4) {
+        suggestion = "Use Round Robin (many processes)";
+    } 
+    else {
+        suggestion = "FCFS is fine for this case";
+    }
+
+    alert("💡 Suggested Algorithm:\n\n" + suggestion);
+}
+</script>
+
 <script>
 
 function loadSample(){
@@ -537,6 +583,53 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
     runCPU();
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+    let table = document.getElementById("table");
+
+    // ✅ STEP 1: bring data from Flask to JS
+    let arrivals = [
+        {% for key, value in form_data.items() if key.startswith('arrival') %}
+            "{{ value }}",
+        {% endfor %}
+    ];
+
+    let bursts = [
+        {% for key, value in form_data.items() if key.startswith('burst') %}
+            "{{ value }}",
+        {% endfor %}
+    ];
+
+    let priorities = [
+        {% for key, value in form_data.items() if key.startswith('priority') %}
+            "{{ value }}",
+        {% endfor %}
+    ];
+
+    let count = arrivals.length;
+
+    if(count === 0) return;
+
+    // ✅ STEP 2: rebuild table
+    table.innerHTML = `
+    <tr><th>P</th><th>AT</th><th>BT</th><th>Priority</th></tr>
+    `;
+
+    for(let i = 0; i < count; i++){
+
+        let row = table.insertRow();
+
+        row.innerHTML = `
+        <td>P${i+1}</td>
+        <td><input name="arrival${i}" value="${arrivals[i]}"></td>
+        <td><input name="burst${i}" value="${bursts[i]}"></td>
+        <td><input name="priority${i}" value="${priorities[i] || ''}"></td>
+        `;
+    }
+
 });
 </script>
 </body>
