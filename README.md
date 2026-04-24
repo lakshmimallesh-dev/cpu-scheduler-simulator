@@ -48,6 +48,11 @@ An interactive web-based CPU Scheduling Simulator that helps visualize how diffe
 
 👉 https://cpu-scheduler-simulator-j2m9.onrender.com/
 
+## LinkedIn Video Link
+👉
+https://www.linkedin.com/posts/lakshmi-mallesh-suvarnam-b671a2321_computerscience-operatingsystems-fullstackdevelopment-ugcPost-7453389766672420864-9QV5?utm_source=social_share_send&utm_medium=android_app&rcm=ACoAAFFdGf8BEnV3rU-QMcIm2yT_29ZHbmmk5mg&utm_campaign=copy_link
+
+
 ---
 
 ## ⚙️ How to Run Locally
